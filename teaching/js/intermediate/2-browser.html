@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script>
+	var stylesheets = [
+		"style1.css",
+		"style2.css"
+	];
+
+	var is_chrome = window.chrome;
+
+	(is_chrome) ?
+	 	 $('head').append('<link rel="stylesheet" href="styles/'+stylesheets[0]+'" type="text/css" />')
+			: $('head').append('<link rel="stylesheet" href="styles/'+stylesheets[1]+'" type="text/css" />');
+	
+
+</script>
+</head>
+<body>
+	
+</body>
+</html>

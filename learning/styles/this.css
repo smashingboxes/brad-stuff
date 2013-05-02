@@ -1,0 +1,51 @@
+body {background:url('../images/crowd.png') top center no-repeat #FD0752;}
+body>.container{
+	padding-top:80px;
+	font-family:'Lato', 'Helvetica Neue', Arial, sans-serif;
+	display:none;
+}
+#slider{
+	margin-top:20px;
+	width:200px;
+}
+.demo{
+	width:450px;
+	margin:0 auto;
+	position:relative;
+	background:#FFF;
+}
+
+.demo p{
+	margin:15px 0 0 0;
+}
+
+.demo .badge{
+	margin-right:15px;
+	padding-left:7px;
+	padding-right:7px;
+	cursor: pointer;
+}
+
+.btn{font-family:'Lato';}
+
+.img-container{
+	position:absolute;
+	right:20px;top:20px;
+	border:1px solid #CCC; 
+	max-width:220px; height:auto;  
+	-webkit-border-radius: 3px;  
+	-moz-border-radius: 3px; 
+	border-radius: 3px; 
+}
+
+.img-container img{background:#FFF;padding:6px;}
+
+#refresh{margin-top: 0;
+text-align: center;
+padding-bottom: 5px;
+cursor: pointer;
+text-decoration: underline;}
+
+.center{color:#FFF; text-align: center;}
+
+#credits{margin-top:10px; font-weight:300;}

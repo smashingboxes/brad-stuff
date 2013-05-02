@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+<head>
+<title>Kaplan Meier</title>
+<link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css'>
+<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<style>
+body{
+	background-image:url(bg.jpg);
+	background-size:cover;
+}
+
+body, input, button, textarea, select{
+	font-family:'Ubuntu', 'Helvetica Neue', Helvetica, Arial;
+}
+
+#meier{
+	background:rgba(255, 255, 255, 0.4);
+	padding:0 10px;
+}
+#meier td input{
+	width:50px;
+	margin:0;
+}
+#meier th{
+	font-size: 10px;
+	line-height: 12px;
+	color:white;
+}
+#meier th, #meier td{
+	text-align:center;
+	width:16.66665%;
+}
+.tableContainer{
+	width:80%;
+	max-width:720px;
+	margin:0 auto;
+	padding:30px 0 0;
+}
+.tableContainer h4{
+	padding:10px 0;
+	color:white;
+}
+
+</style>
+</head>
+<body>
+<div class="tableContainer">
+	<h4>Disease ID : Treatment ID</h4>
+	<table class="table table-hover" id="meier">
+		<thead>
+			<tr>
+				<th>Time of the event<br>(t)</th>
+				<th>No of patients dead<br>(d)</th>
+				<th>No alive at start<br>(n)</th>
+				<th>Percent that survive this period</th>
+				<th>Percent that don't survive</th>
+				<th>Probability of survival</th>
+			</tr>
+		</thead>
+		<tbody>
+				<tr>
+					<td><input id="t-0" type="text"></td>
+					<td><input id="d-0" type="text"></td>
+					<td><input id="n-0" type="text"></td>
+					<td><input id="s-0" type="text" disabled="disabled"></td>
+					<td><input id="de-0" type="text" disabled="disabled"></td>
+					<td><input id="l-0" type="text" disabled="disabled"></td>
+				</tr>
+		</tbody>
+	</table>
+	<button class="btn btn-primary" id="addRow">Add row</button> 
+	<button class="btn btn-success">Save</button>
+</div>
+
+<script>
+$(function(){
+	var i = 1;
+	$('#addRow').click(function(){
+		var newRow = '<tr id="row-'+i+'"><td><input id="t-'+i+'" type="text"></td>';
+			newRow += '<td><input id="d-'+i+'" type="text"></td>';
+			newRow += '<td><input id="n-'+i+'" type="text"></td>';
+			newRow += '<td><input id="s-'+i+'" type="text" disabled="disabled"></td>';
+			newRow += '<td><input id="de-'+i+'" type="text" disabled="disabled"></td>';
+			newRow += '<td><input id="l-'+i+'" type="text" disabled="disabled"></td></tr>';
+		$('#meier > tbody tr:last').after(newRow);
+		i++;
+	});
+
+	$('#save').click(function(){
+		//to-do: wrap the data nicely in JSON
+	});
+	
+	$('#meier').on('blur', 'tbody td > input', function() {
+		   calculate();
+	});
+	
+	function calculate(){
+		for(var t=0; t<i; t++){
+			if( checkForNumbers(t) ){
+				calculateDe(t);
+				calculateS(t);
+				calculateL(t);
+			}
+		}
+	}
+
+	function checkForNumbers(i){
+		var t = $('#t-'+i).val(),
+			d = $('#d-'+i).val(),
+			n = $('#n-'+i).val();
+
+		if(t != "" && isNumeric(t)){
+			if(d != "" && isNumeric(d)){
+				if(n != "" && isNumeric(n)){
+					return true;
+				}
+			}
+		}
+		else{
+			return false;
+		}
+	}
+
+	function calculateDe(i){
+		var d = $('#d-'+i).val(),
+			n = $('#n-'+i).val(),
+			De = d/n;
+			$('#de-'+i).val(De);
+	}
+
+	function calculateS(i){
+		var De = $('#de-'+i).val(),
+			s = 1 - De;
+			$('#s-'+i).val(s);
+	}
+
+	function calculateL(i){
+		var p = i-1;
+			ll = (i == 0) ? $('#s-0').val() : $('#l-'+p).val(),
+			s = $('#s-'+i).val(),
+			l = (i == 0) ? s : (s*ll);
+			$('#l-'+i).val(l); 
+	}
+
+	function isNumeric(input){
+    	return (input - 0) == input && (input+'').replace(/^\s+|\s+$/g, "").length > 0;
+	}
+
+});
+</script>
+</body>
+</html>

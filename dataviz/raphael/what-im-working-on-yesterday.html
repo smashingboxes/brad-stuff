@@ -1,0 +1,555 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>Dognition | Data Visualization</title>
+		<link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+		<link type="text/css" href="css/style.css" media="screen" rel="stylesheet"  />
+		<!-- fonts -->
+		<link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css'>
+		<!-- script come after links-->
+		<script src="http://code.jquery.com/jquery-latest.js" type="text/javascript"></script>
+		<script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>		
+		<script src="js/raphael-1.5.2-min.js" type="text/javascript"></script>
+				<script type='text/javascript'> 
+
+var DrawPentagon = function() {
+
+var saySomething = "Randall's Room";    
+$('#type-container').prepend(saySomething); //put my words on the page
+
+	var draw = new Raphael("pentagon"), 
+
+
+		centerX = 316, centerY = 253,
+	    pointerLocations = [], 
+		triangles = [], 
+		sparkLine, pointerLine, dimensionTriangle, labels, pointerLineTriangle, theBundle, 
+		distributionData = [], 
+		i, j, h,
+	    values = [],
+	    labels=[ 
+				["EMPATHY","Bonded","Individualistic"], 
+				["CUNNING","Trustworthy", "Wily"], 
+				["COMMUNICATION","Collaborative", "Self-Reliant"],
+				["MEMORY", "Present-Minded", "Retrospective"], 
+				["REASONING","Logical", "Impulsive"]
+				],
+		labelXY = [
+			   	[310, 470],
+				[120, 340],
+				[200, 80], 
+				[430, 80], 
+				[500, 340] 
+			   ],
+		
+		alignDirections = ["middle", "end", "end", "start", "start"], 
+		borderColors = ['#ff4e17', '#FF6600', '#FF9900','#20b3b7','#3ab448'],
+	    	fillColors = ['#FF743D', '#FFA13B', '#FFD43B','#46D9DD','#60DA6E'],
+		pointerX = [];
+		pointerValues = [0, 0, 0, 0, 0],
+		pointerX; 
+
+
+	for (i=0; i<5; i++) {
+		values[i] = getDistributionValues(12, i);
+
+		pointerLocations[i] = normalizePointerLocation(i);
+	
+		label = draw.text(labelXY[i][0], labelXY[i][1], labels[i][0]).attr({ 
+				'font' : '15px Ubuntu',
+				'font-weight' : 'bold',
+				'fill' : '#777',
+				'text-anchor' : alignDirections[i]
+		});
+		
+		minLabel = draw.text(195, 428, labels[i][1]).attr({
+				'font' : '12px Ubuntu',
+				'fontWeight' : 'lighter',
+				'fill' : borderColors[i],
+				'text-anchor' : 'start',
+				'opacity' : 0.7
+		});
+
+		maxLabel = draw.text(430, 428, labels[i][2]).attr({
+				'font' : '12px Ubuntu',
+				'fontWeight' : 'lighter',
+				'fill' : borderColors[i],
+				'text-anchor' : 'end',
+				'opacity' : 0.7
+		});
+
+		if(isFlippable(i)){
+			minLabel.attr({'text-anchor' : 'end',});
+			maxLabel.attr({'text-anchor' : 'start'});
+		}
+		
+		sparkFill = draw.path(values[i] + "L198,418 265,418z").attr({
+				'opacity' : 0.6,
+				'fill'	: borderColors[i],
+				'stroke' : 'none'
+		});
+
+		sparkLine = draw.path(values[i]).attr({
+				'fill' : 'none',
+				'stroke' : borderColors[i],
+				'stroke-width' : 1
+		});
+
+		pointerLine = draw.path(["M", centerX, centerY] + pointerLocations[i]).attr({ 
+				'stroke' : '#575757',
+				'stroke-width' : 2
+		}).toFront();
+
+	
+		dimensionTriangle = draw.path(["M", centerX , centerY] + "l-120,165 239,0z").attr({ 
+				'stroke': '#ADAFAF',
+				'fill': 'none',
+				'stroke-width': 1
+	    });
+		
+	   	pointerLineTriangle = draw.path(["M", pointerX, 410] + "l-8, 8, 16, 0z").attr({
+				'fill' : '#575757',
+				'stroke' : 'none'
+		}).toFront();
+
+		triangles.push(sparkLine, sparkFill, dimensionTriangle, pointerLine, minLabel, maxLabel, pointerLineTriangle);
+
+	    theBundle = draw.set();
+	    theBundle.push(pointerLine, dimensionTriangle, sparkLine, sparkFill, minLabel, maxLabel,pointerLineTriangle);
+	    theBundle.rotate(i * 72, centerX, centerY);
+
+	    if(isFlippable(i)){
+			labelHeight = minLabel.getBBox().height;	
+			minLabel.node.setAttribute(
+				'transform', minLabel.node.getAttribute('transform')+ 
+				' rotate(180 '+ minLabel.node.getAttribute('x')+ ' '+
+				(minLabel.node.getAttribute('y')-(labelHeight/3))+ ')'
+			);
+		
+			maxLabel.node.setAttribute(
+				'transform', maxLabel.node.getAttribute('transform')+
+				' rotate(180 '+ maxLabel.node.getAttribute('x')+ ' '+
+				(maxLabel.node.getAttribute('y')-(labelHeight/3))+ ')'
+			);
+	  	}
+	}
+
+	function normalizePointerLocation(h){
+		var str = "";
+		var value = getRandomInt(50, -50);
+		pointerX = centerX - value;
+		
+		if(value>=0){
+			str = "l-"+value+", 160z";
+		}
+		else{
+			str = "l"+value*-1+", 160z";
+		}
+	
+		return str;
+	}
+
+	function getDistributionValues(length, j) {
+		            var path = "",
+		                x = 180,
+		                y = 418;
+		            distributionData[j] = distributionData[j] || [];
+		            for (var i = 0; i < length; i++) {
+		            	if(i<length/5 || i > length-(length/5)){ 
+		                	distributionData[j][i] = 1*getRandomInt(1,5);
+		                }
+		            	else if(i<length/3 || i > length-(length/3)){ 
+		                	distributionData[j][i] = 1*getRandomInt(5,30);
+		                }
+		                else{
+		                	distributionData[j][i] = 1*getRandomInt(30, 90);
+		                }
+
+		                distributionData[j][0] = 0;
+		                distributionData[j][length-1] = 0;
+
+		                if (i) {
+		                     path += "C" + [x + 23, y, (x += 23) - 12, (y = 418 - distributionData[j][i]), x, y];
+		                }
+		                 
+		                else {
+		                     path += "M" + [196, (y = 418 - distributionData[j][i])];
+		                }
+		            }
+		            return path;
+		        }
+	}
+	
+	function getRandomInt (min, max) {
+	    return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
+
+	function isFlippable(order){
+		return (order > 1 && order < 4);
+	}
+
+	function debugging(qwerty){
+		if(qwerty > 0){
+			return 0.1;
+		}
+		else{
+			return 1.0;
+		}
+	}
+
+	var alreadyrunflag = 0;
+
+	if (document.addEventListener)
+	    document.addEventListener("DOMContentLoaded", function(){
+		alreadyrunflag=1; 
+		DrawPentagon();
+	    }, false);
+	else if (document.all && !window.opera) {
+	    document.write('<script type="text/javascript" id="contentloadtag" defer="defer" src="javascript:void(0)"><\/script>');
+	    var contentloadtag = document.getElementById("contentloadtag")
+	    contentloadtag.onreadystatechange=function(){
+		if (this.readyState=="complete"){
+		    alreadyrunflag=1;
+		    DrawPentagon();
+		}
+	    }
+}
+
+window.onload = function(){
+  setTimeout("if (!alreadyrunflag){DrawPentagon}", 0);
+}
+</script>
+
+</head>
+<body>
+    <div id="content">
+ 		<div id="pentagon"></div>
+		<h1>HTML</h1>
+		<pre class="prettyprint">
+<code>
+&lt;html&gt;
+&lt;head&gt;
+	&lt;script src="http://code.jquery.com/jquery-latest.js" type="text/javascript"&gt;&lt;/script&gt;
+	&lt;script src="js/raphael-1.5.2-min.js" type="text/javascript">&lt;/script&gt;
+	&lt;script src="path/to/our/javascript" type="text/javascript">&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+	&lt;div id="content"&gt;
+		&lt;div id="pentagon">&lt;/div&gt;
+	&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code>
+		</pre>
+		
+		<h1>CSS</h1>
+		<pre class="prettyprint">
+<code>
+#content {
+margin: 30px auto;
+width: 632px;
+height: 600px;
+
+}
+
+
+#content h1 {
+font-family:'Ubuntu', arial, serif;
+color:#575757;
+font-size:40px;
+margin-bottom:37px;
+text-align:left;
+border-bottom: 1px solid #999;
+padding-bottom: 10px;
+}
+
+
+#pentagon {
+    	width: 630px;
+    	height: 550px;
+    	background:#FFF;
+	margin:0 auto;
+	background-color: #FAFAFA;
+	background-image: -moz-linear-gradient(top, white, #F2F2F2);
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(white), to(#F2F2F2));
+	background-image: -webkit-linear-gradient(top, white, #F2F2F2);
+	background-image: -o-linear-gradient(top, white, #F2F2F2);
+	background-image: linear-gradient(to bottom, white, #F2F2F2);
+	background-repeat: repeat-x;
+	border: 1px solid #D4D4D4;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#fff2f2f2', GradientType=0);
+	border: 1px solid;
+	border-color: #E5E5E5 #DBDBDB #D2D2D2;
+	-webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
+	-moz-box-shadow: rgba(0,0,0,0.3) 0 1px 3px;
+	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
+}
+</code>
+		</pre>
+		<h1>JS <small>with jQuery and Raphael</small></h1>		
+		<pre class="prettyprint">
+<code>
+var DrawPentagon = function() {
+
+	var draw = new Raphael("pentagon"), //select the element with an idea pentagon from the page, and make it a raphael object
+
+	
+		/* #THE DATA TYPES AND CONSTANTS
+	   ============================== */
+	
+		centerX = 316, centerY = 253, // we'll reference this a lot
+	    	pointerLocations = [], // location on the x-axis of the base of the triangle that this user points to
+		triangles = [], // ...naturally
+		sparkLine, pointerLine, dimensionTriangle, labels, pointerLineTriangle, theBundle,  //the things we'll draw
+		distributionData = [], //we'll get these from the database
+		i, j, h, //counters
+	    	values = [], //from the database
+	    	labels=[ 
+				["EMPATHY","Bonded","Individualistic"], //labels[0][1,2,3] 
+				["CUNNING","Trustworthy", "Wily"], //labels[1][1,2,3]
+				["COMMUNICATION","Collaborative", "Self-Reliant"], //labels[2][1,2,3]
+				["MEMORY", "Present-Minded", "Retrospective"], 
+				["REASONING","Logical", "Impulsive"]
+				],
+		labelXY = [
+			   	[310, 470], //empathy label x,y coordinates
+				[120, 340], //cunning label x,y coordinates
+				[200, 80], //communication label x,y coordinates
+				[430, 80], //memory label x,y coordinates
+				[500, 340] //reasoning label x,y coordinates
+			   ],
+		alignDirections = ["middle", "end", "end", "start", "start"], //sets the text-align property for raphaels.text
+		borderColors = ['#ff4e17', '#FF6600', '#FF9900','#20b3b7','#3ab448'],
+	    	fillColors = ['#FF743D', '#FFA13B', '#FFD43B','#46D9DD','#60DA6E'],
+		pointerX = [];
+		pointerValues = [0, 0, 0, 0, 0], //these will be loaded dynamically from the database
+		pointerX; 
+
+
+	/* #CREATE AN INDIVIDUAL TRIANGLE GRAPH 5 TIMES
+	   ============================================ 
+   centerX, centerY ---->    ^   <---- 72 degrees = 360/5
+                            /|\
+                           / | \        
+                          /  |  \
+                         /   |   \ 
+                        /    |    \					
+                       /     |     \
+                      /~ ~ ~ | ~ ~ ~\
+                     /~~~~~~~|~~~~~~~\ <-- spark line
+    54 degrees -->  /________&Delta;________\ <-- 54 degrees = (180 -72)/2
+                    minLabel    maxLabel								                       
+	   												                       */ 
+
+	for (i=0; i<5; i++) { //there's 5 triangles in a pentagon, so we'll do this 5 times
+		values[i] = getDistributionValues(12, i); //we're going to use the same time series for the sparkLine and sparkFill
+
+		pointerLocations[i] = normalizePointerLocation(i); //make it talk with raphael.js 
+		/* THING 1 - DEFINE SOME LABELS */
+		label = draw.text(labelXY[i][0], labelXY[i][1], labels[i][0]).attr({ //draw the label
+				'font' : '15px Ubuntu',
+				'font-weight' : 'bold',
+				'fill' : '#777',
+				'text-anchor' : alignDirections[i] //, 'opacity' : debugging(i)
+		});
+		
+		minLabel = draw.text(195, 428, labels[i][1]).attr({
+				'font' : '12px Ubuntu',
+				'fill' : borderColors[i],
+				'text-anchor' : 'start',
+				'opacity' : 0.7
+		});
+
+		maxLabel = draw.text(430, 428, labels[i][2]).attr({
+				'font' : '12px Ubuntu',
+				'fill' : borderColors[i],
+				'text-anchor' : 'end',
+				'opacity' : 0.7
+		});
+
+		if(isFlippable(i)){
+			minLabel.attr({
+					'text-anchor' : 'end',
+
+			});
+
+			maxLabel.attr({
+					'text-anchor' : 'start'
+			});
+		}
+		
+	
+		/* THING 2 - DEFINE THE FILLED IN PART OF THE DISTRIBUTION */
+		sparkFill = draw.path(values[i] + "L198,418 265,418z").attr({
+				'opacity' : 0.6,
+				'fill'	: borderColors[i],
+				'stroke' : 'none'
+		});
+
+		/* THING 3 - DEFINE THE DISTRIBUTION LINE */
+		sparkLine = draw.path(values[i]).attr({ //draw the graph
+				'fill' : 'none',
+				'stroke' : borderColors[i],
+				'stroke-width' : 1
+		});
+
+		/* THING 4 - DEFINE A LINE FROM THE TOP OF THE TRIANGLE TO A PLACE ON THE BASE */
+		pointerLine = draw.path(["M", centerX, centerY] + pointerLocations[i]).attr({ //draw a line from the center point to the base of the triangle
+				'stroke' : '#575757',
+				'stroke-width' : 2 //, 'opacity' : debugging(i)
+		}).toFront();
+
+	
+	
+	
+		/* THING 5 - DRAW A TRIANGLE TO CONTAIN IT ALL */
+		dimensionTriangle = draw.path(["M", centerX , centerY] + "l-120,165 239,0z").attr({ //draw a triangle
+				'stroke': '#ADAFAF',
+				'fill': 'none',
+				'stroke-width': 1// , 'opacity' : debugging(i)
+	    });
+		/* THING 6 - DRAW A TRIANGLE AT THE END OF THE POINTER LINE */
+	   	pointerLineTriangle = draw.path(["M", pointerX, 410] + "l-8, 8, 16, 0z").attr({
+				'fill' : '#575757',
+				'stroke' : 'none'
+		}).toFront();
+
+
+	    /* THING 7 - CREATE AND ROTATE EVERYTHING APPROPRIATELY */
+	    triangles.push(sparkLine, sparkFill, dimensionTriangle, pointerLine, minLabel, maxLabel, pointerLineTriangle);
+
+	    theBundle = draw.set();
+	    theBundle.push(pointerLine, dimensionTriangle, sparkLine, sparkFill, minLabel, maxLabel,pointerLineTriangle);
+	    theBundle.rotate(i * 72, centerX, centerY); //we set the anchor point at the center and rotate 360/5 = 72 degrees each time
+
+	    if(isFlippable(i)){ //for the 2 and 3rd triangles, rotate the text so we can read it better
+		labelHeight = minLabel.getBBox().height;	
+		minLabel.node.setAttribute('transform',
+		                               minLabel.node.getAttribute('transform')+
+		                               ' rotate(180 '+
+		                               minLabel.node.getAttribute('x')+
+		                               ' '+
+		                               (minLabel.node.getAttribute('y')-(labelHeight/3))+
+		                               ')');
+	
+
+	  	
+		maxLabel.node.setAttribute('transform',
+		                               maxLabel.node.getAttribute('transform')+
+		                               ' rotate(180 '+
+		                               maxLabel.node.getAttribute('x')+
+		                               ' '+
+		                               (maxLabel.node.getAttribute('y')-(labelHeight/3))+
+		                               ')');
+	  	
+		}
+	}
+
+	/* #TURN BAD DATA INTO GOOD DATA
+	   ============================== */
+
+	function normalizePointerLocation(h){
+		var str = ""; //the bad thing about raphael is that we need to pass it a string
+		var value = getRandomInt(50, -50);
+		pointerX = centerX - value;
+		//still need to normalize this
+		if(value>=0){
+			str = "l-"+value+", 160z"; //l the negative change in x direction from the midpoint and z is the end of the path
+		}
+		else{
+			str = "l"+value*-1+", 160z";
+		}
+	
+		return str;
+	}
+
+
+	/* #GENERATE AN ARRAY WITH RANDOM (NORMAL) DATA
+	   ============================================ */
+
+	function getDistributionValues(length, j) {
+		            var path = "",
+		                x = 180,
+		                y = 418;
+		            distributionData[j] = distributionData[j] || [];
+		            for (var i = 0; i < length; i++) {
+		            	if(i<length/5 || i > length-(length/5)){ //hack for a normalish distribution
+		                	distributionData[j][i] = 1*getRandomInt(1,5);
+		                }
+		            	else if(i<length/3 || i > length-(length/3)){ //hack for a normalish distribution
+		                	distributionData[j][i] = 1*getRandomInt(5,30);
+		                }
+		                else{
+		                	distributionData[j][i] = 1*getRandomInt(30, 90);
+		                }
+
+		                distributionData[j][0] = 0;
+		                distributionData[j][length-1] = 0;
+
+
+							/* #CONVERT TO A RAPHAEL STRING
+							   ============================== */
+
+		                // console.log('distributionData [' + j + ']' + '[' + i + '] = ' + distributionData[j][i]);
+		                 if (i) {
+		                     path += "C" + [x + 23, y, (x += 23) - 10, (y = 418 - distributionData[j][i]), x, y];
+		                 }
+		                 
+		                  else {
+		                     path += "M" + [196, (y = 418 - distributionData[j][i])]; //first one has special syntax
+		                 }
+		                
+		            }
+		            return path;
+		        }
+
+	}
+	function getRandomInt (min, max) {
+	    return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
+
+	function isFlippable(order){
+		return (order > 1 && order < 4);
+	}
+
+	function debugging(qwerty){
+		//example usage : 'opacity' : debugging(i)
+		if(qwerty > 0){
+			return 0.1;
+		}
+		else{
+			return 1.0;
+		}
+	}
+
+	var alreadyrunflag = 0;
+
+	if (document.addEventListener)
+	    document.addEventListener("DOMContentLoaded", function(){
+		alreadyrunflag=1; 
+		DrawPentagon();
+	    }, false);
+	else if (document.all && !window.opera) {
+	    document.write('&lt;script type="text/javascript" id="contentloadtag" defer="defer" src="javascript:void(0)"&gt;&lt;\/script&gt;');
+	    var contentloadtag = document.getElementById("contentloadtag")
+	    contentloadtag.onreadystatechange=function(){
+		if (this.readyState=="complete"){
+		    alreadyrunflag=1;
+		    DrawPentagon();
+		}
+	    }
+}
+
+window.onload = function(){
+  setTimeout("if (!alreadyrunflag){DrawPentagon}", 0);
+}
+
+		</code>
+		</pre>
+    </div>
+	</body>
+</html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script>
+$(function(){
+	var data = [
+		{ 
+			name: "Larry",
+			score: 10
+		},
+		{ 
+			name: "Polly",
+			score: 15
+		},
+		{ 
+			name: "David",
+			score: 23
+		},
+		{ 
+			name: "Mary",
+			score: 11
+		},
+		{ 
+			name: "Amir",
+			score: 17
+		},
+		{ 
+			name: "Rocky",
+			score: 19
+		},
+		{ 
+			name: "Joseph",
+			score: 8
+		}
+	];
+
+	var highScore = 0, highScorer;
+
+	for (var i=0; i<data.length; i++){
+		if(data[i].score > highScore){ 
+			highScore = data[i].score;
+			highScorer = i;
+		}
+	}
+
+	$('body').append('<h1>'+data[highScorer].name+'</h1><h2>'+highScore+'</h2>');
+});
+</script>
+</head>
+<body>
+
+</body>
+</html>

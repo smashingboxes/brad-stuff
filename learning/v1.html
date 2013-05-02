@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+<title>Algorithms for Haircuts</title>
+<link rel="stylesheet" type="text/css" href="styles/bootstrap/bootstrap.css">
+<link rel="stylesheet" href="styles/jquery.ui/jquery-ui.css" />
+<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="styles/this.css">
+
+
+</head>
+<body>
+
+<div class="container">
+	<h1 class="center">Is this a good or bad haircut?</h1>
+	<div class="demo well">
+		<div class="img-container"></div>
+		<h1 id="judgement">Unknown</h1>
+		<h5 id="confidence"><span>0</span>% Confidence</h3>
+		<button id="bad" class="btn btn-large btn-danger">Bad <span id="badVotes"></span></button>
+		<button id="good" class="btn btn-large btn-success">Good <span id="goodVotes"></span></button>
+	
+		<div id="slider"></div>
+
+		<p>
+			<span class="badge" 
+				title="User credibility should be calculated ahead of time by comparing the user's voting history to either expert labels or labels that the crowd agrees on. Credibility can range from 0 to 1. You can adjust the horizontal slider to view the effects of varying credibility on confidence.">?</span>
+			<strong>User credibility: </strong>
+			<span id="intervalValue">1.0</span>
+		</p>
+		<p>
+			<span class="badge" 
+				title="Real agreement is a way of looking at how people agreed without taking credibility into account. It is another way of asking, what percentage of people support the most likely conclusion?">?</span>
+			<strong>Real agreement: </strong>
+			<span id="agreementValue">0.0</span></p>
+		
+		<p>
+			<span class="badge" 
+				title="The value of the running total is incremented by (+/-) &times; credibility and plotted in a Sigmoid function to determine confidence. The Sigmoid function is 1/(1+e^(-x))">?</span>
+			<strong>Running total: </strong>
+			<span id="runningTotal">0</span></p>
+		<p>
+			<span class="badge" 
+				title="The goal is to ask as few people as possible">?</span>
+			<strong>Number of votes: </strong>
+			<span id="numberOfVotes">0</span></p>
+		</p>
+	</div>
+	<p id="credits" class="center">Built with open source information <a href="http://twitter.com/#!/smashingboxes">@smashingboxes</a><br><a href="https://dl.dropbox.com/u/13489146/ml.zip">Download source</a></p>
+	
+</div>
+
+<p class="center" style="position:absolute; top:420px; width:100%">
+	<button id="got-it-button" class="btn btn-info btn-large">OK, I got it</button>
+</p>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+<script src="scripts/lib/tooltip.js"></script>
+<script src="scripts/lib/numeric.js"></script>
+<script src="scripts/app.js"></script>
+
+<script type="text/javascript" language="javascript"
+src="http://api.flickr.com/services/rest/?format=json&sort=random&method=flickr.photos.search&tags=haircut,headshot&tag_mode=all&api_key=802cabf296bc5d100ead97f4b2a77b4d">
+</script>
+
+<script>
+$(document).ready(function(){
+	$('#got-it-button').on('click', function(){
+		$('#got-it-button').hide();
+		$('.container').fadeIn();
+	});
+});
+</script>
+</body>
+</html>

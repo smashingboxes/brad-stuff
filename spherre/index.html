@@ -1,0 +1,486 @@
+<!doctype html>
+<html>
+<head>
+<title>Infinite Friends | A jQuery Plugin</title>
+<link href='http://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
+<style>
+
+html, body{
+	margin:0;
+	padding:0;
+}
+body{
+	background: #f2f2f2;
+}
+
+.logo{
+	position:fixed;
+	left:80px;
+	top:0;
+	width:180px;
+	padding:20px 0;
+	background:#272727;;
+	color:#ffffff;
+	font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-weight:lighter;
+	font-size:18px;
+	text-align: center;
+	z-index:9;
+}
+
+.logo h5{
+	margin:0;
+	padding:4px 0;
+	font-size:10px;
+	font-family: 'Julius Sans One', sans-serif;
+}
+
+.logo h6{
+	margin:0;
+	padding:4px 0;
+	font-size:10px;
+	font-family: 'Julius Sans One', sans-serif;
+	display:none;
+}
+
+.logo h6 a{
+	color:#f2f2f2;
+}
+
+.logo h6 a:hover, .logo h6 a:active{
+	text-decoration: none;
+}
+
+.container{
+	width:608px;
+	margin:0 auto;
+	padding:40px 0;
+}
+
+.container h1{
+	font-family: 'Julius Sans One', sans-serif;
+	font-size: 32px;
+	color:#272727;
+	text-shadow:1px 1px 1px #FFF;
+	margin-bottom:5px;
+	border-bottom:1px solid #CCC;
+}
+
+.container p{
+	font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size:15px;
+	color:#575757;
+	line-height:20px;
+}
+
+.container p > a{
+	color:#272727;
+	text-decoration:underline;
+}
+
+/* desert scheme ported from vim to google prettify */
+pre.prettyprint { display: block; background-color: #333; overflow-x:scroll; font-size:14px;}
+pre .nocode { background-color: none; color: #000 }
+pre .str { color: #ffa0a0 } /* string  - pink */
+pre .kwd { color: #f0e68c; font-weight: bold }
+pre .com { color: #87ceeb } /* comment - skyblue */
+pre .typ { color: #98fb98 } /* type    - lightgreen */
+pre .lit { color: #cd5c5c } /* literal - darkred */
+pre .pun { color: #fff }    /* punctuation */
+pre .pln { color: #fff }    /* plaintext */
+pre .tag { color: #f0e68c; font-weight: bold } /* html/xml tag    - lightyellow */
+pre .atn { color: #bdb76b; font-weight: bold } /* attribute name  - khaki */
+pre .atv { color: #ffa0a0 } /* attribute value - pink */
+pre .dec { color: #98fb98 } /* decimal         - lightgreen */
+
+/* Specify class=linenums on a pre to get line numbering */
+ol.linenums { margin-top: 0; margin-bottom: 0; color: #AEAEAE } /* IE indents via margin-left */
+li.L0,li.L1,li.L2,li.L3,li.L5,li.L6,li.L7,li.L8 { list-style-type: none }
+/* Alternate shading for lines */
+li.L1,li.L3,li.L5,li.L7,li.L9 { }
+
+@media print {
+  pre.prettyprint { background-color: none }
+  pre .str, code .str { color: #060 }
+  pre .kwd, code .kwd { color: #006; font-weight: bold }
+  pre .com, code .com { color: #600; font-style: italic }
+  pre .typ, code .typ { color: #404; font-weight: bold }
+  pre .lit, code .lit { color: #044 }
+  pre .pun, code .pun { color: #440 }
+  pre .pln, code .pln { color: #000 }
+  pre .tag, code .tag { color: #006; font-weight: bold }
+  pre .atn, code .atn { color: #404 }
+  pre .atv, code .atv { color: #060 }
+}
+
+</style>
+<link rel="stylesheet" type="text/css" href="infinite-xy-scroll.css">
+</head>
+<body>
+<div class="logo">Infinite Friends<h5>A JSON + jQuery Plugin</h5><h6><a href="Archive.zip">Download</a></h6></div>
+	<div class="sphereContainer"></div>
+
+	<div class="container">
+		<h1>How it Works</h1>
+		<p>Infinite Friends is a jQuery plugin for the illusion of infinite scrolling in the x and y-directions.</p>
+		<p>The plugin works by first drawing the main object (U0) at the center of the element. New elements on the page want to be close to the main object. We start arbitrarily in the top-left corner for each iteration, moving right, then down, then left, then up&mdash; repeating this process as neccessary.</p>
+		<p><img src="diagram.png"></p>
+		<p>This method allows us to set rows and columns for each box relative to the origin (0,0).</p>
+		<p>When the right arrow is clicked, all boxes are shifted left and the leftmost column is moved to the rightmost position, giving the illusion of the window panning right:</p>
+		<p><img src="docs-diagram2.png"></p>
+		<p><img src="docs-diagram3.png"></p>
+		<p>In order to use the plugin, you'll need to specify the URL for a JSON array. The plugin will then decide how many boxes to draw based on the amount of objects in the array. The most important element (e.g. the user) should be the first object in the array, and subsequent objects should be sorted by the strength of their relationship to the most important element.</p>
+		<p>The plugin works best if the JSON array has a length &isin; {1,
+9,
+25,
+49,
+81,
+121,
+169,
+225,
+289,
+361,
+441,
+529,
+625,
+729,
+841,
+961,
+1089,
+1225,
+1369,
+1521,
+1681,
+1849,
+2025,
+2209,
+2401,
+2601,
+2809,
+3025,
+3249,
+3481,
+3721,
+3969,
+4225,
+4489,
+4761,
+5041,
+5329,
+5625,
+5929,
+6241,
+6561,
+6889,
+7225,
+7569,
+7921,
+8281,
+8649,
+9025}</p>
+<p>This set of ideal magnitude is also known as the <em>odd squares</em>
+		<h1>Dependencies</h1>
+		<p>The stylesheet should go in the <code class="prettyprint">&lt;head&gt;</code>, and the javascript files should go before the closing <code class="prettyprint">&lt;/body&gt;</code> tag.
+		<pre class="prettyprint">
+			<code>
+
+&lt;link rel="stylesheet" type="text/css" href="infinite-xy-scroll.css"&gt;
+
+&lt;script src="jquery.js"&gt;&lt;/script&gt;
+&lt;script src="infinite-xy-scroll.js"&gt;&lt;/script&gt;	
+
+			</code>
+		</pre>
+		<p>You'll also need to make sure that your using an http:// environment to talk with the JSON. MAMP, WAMP, or even Dropbox's Public folder work fine for development.</p>
+
+		<h1>Configuration</h1>
+		<p>You can tell the plugin how big each box should be and how much spacing should be between each box:</p>
+		<pre class="prettyprint">
+			<code>
+$('.sphereContainer').infiniteFriends({
+	json_path: 'data.json', //default value
+	elementHeight: 110, //default value
+	elementWidth: 110, //default value
+	elementMargin: 10, //default value
+	centerX: 248, //default value
+	centerY: 248 //default value
+
+});				
+			</code>
+		</pre>
+		<h1>Le Javascript</h1>
+		<p>You can configure how your data is displayed with the <a href="#draw_method">_draw method</a>. In this example, we also include a <a href="#hover_event">simple event for hovering over boxes</a>.</p>
+		<pre class="prettyprint">
+			<code>
+;(function ($) {
+	
+	// Defaults Values
+
+	var defaults = {
+		json_path: 'data.json', //specify where your data comes from -- edit how it is displayed in the _draw function
+		centerX: 248, //x-position of center box
+		centerY: 248, //y-position of center box
+		elementHeight: 110, //make sure this matches css definition
+		elementWidth: 110, //make sure this matches css definition
+		elementMargin: 10 //how much space between boxes?
+	};
+
+	// Calculated Variables -- Dependent on Size of JSON Object
+	// Ideally the JSON.array.length is square of an odd number e.g., 9, 25, 49, 81, ... 341..
+
+	var calc = {
+		total: 0, //the length of the json object
+		upper:  0, lower: 0, //keep track of the maximum and minimum values for permutations	
+		x: 0, y: 0, //keep track of the current row and column
+
+		counter: 0, numberOfRings: 0,
+		rightmost: 0, leftmost: 0, upmost: 0, downmost: 0,
+		moveRight: "", moveLeft: "", moveUp: "", moveDown: "",
+		bottomY: 0, topY: 0, leftX: 0, rightX: 0
+	};
+
+	
+	function Infinite (el, options) {
+	
+		this.el = el;
+		this.$el = $(el);
+
+		// Json data once receied from server
+	
+		this.friends = [];
+
+		// Merge defaults with user options, but keep defaults untouched
+	
+		this.options = $.extend({}, defaults, options);
+		this.initAjax();
+	}
+
+	$.extend(Infinite.prototype, {
+		
+		initAjax: function () {
+			var self = this, $jqXhr,
+
+			ajax_settings = {
+				type: "POST",
+				dataType: 'json',
+				url: self.options.json_path	
+			};
+
+			$jqXhr = $.ajax(ajax_settings);
+
+			$jqXhr.done(function (data, textStatus, jqXHR) {
+				self.options.friends = data.friends;
+				self._setup();
+				// console.log(self.options.friends);
+			});
+
+			$jqXhr.fail(function (jqXHR, textStatus, errorThrown) {
+				console.log(jqXHR, textStatus, errorThrown);
+			});			
+		},
+
+		_oddSquares: function (x) {
+			return Math.ceil((Math.sqrt(x)-1)/2);
+		},		
+
+		_setup: function () {
+			var self = this;
+			
+			/* You don't want to edit this function */
+
+			calc.total = self.options.friends.length;
+			calc.numberOfRings = self._oddSquares(calc.total);
+			calc.rightmost = calc.numberOfRings; 
+			calc.leftmost = -calc.rightmost; 
+			calc.upmost = calc.leftmost;     
+			calc.downmost = calc.rightmost;  
+			calc.moveDown = "+="+(self.options.elementHeight+self.options.elementMargin);
+			calc.moveUp = "-="+(self.options.elementHeight+self.options.elementMargin);
+			calc.moveRight = "+="+(self.options.elementWidth+self.options.elementMargin);
+			calc.moveLeft = "-="+(self.options.elementWidth+self.options.elementMargin);
+			calc.bottomY = self.options.centerX + calc.downmost*(self.options.elementHeight+self.options.elementMargin);
+			calc.topY = self.options.centerX + calc.upmost*(self.options.elementHeight+self.options.elementMargin);
+			calc.leftX = self.options.centerX + calc.rightmost*(self.options.elementWidth+self.options.elementMargin);
+			calc.rightX = self.options.centerX + calc.leftmost*(self.options.elementWidth+self.options.elementMargin);
+			// Take off!
+			self._init();
+		},
+
+		_draw: function (row, column) {
+			var self = this;
+			var opts = self.options;
+
+			//console.log(window.counter + " : row : " + row + " column : " + column);
+			
+			var topPosition = opts.centerY  + column*(opts.elementHeight + opts.elementMargin);
+			var leftPosition = opts.centerX + row*(opts.elementWidth + opts.elementMargin);
+
+<a name="draw_method"></a>
+/*	THE DRAW METHOD
+===============================================================================		
+*
+*	This is what you'll need to change to customize your boxes:
+*	Heads up: don't mess with the top and left style attributes
+*
+*	You can access parts of your JSON array with opts.friends[calc.counter].foo
+* =============================================================================*/ 	
+
+
+$('#sphereBox').append("&lt;div class='sphereElement' style='position:absolute;top: "
+	+topPosition+"px;left:"+leftPosition+"px;' data-row='"+row+"' data-column='"+column
+	+"'&gt;
+
+	&lt;h2&gt;"+opts.friends[calc.counter].title+"&lt;/h2&gt;&lt;div&gt;&lt;img src='"+opts.friends[calc.counter].img
+	+"'&gt;&lt;div class='name'&gt;"+opts.friends[calc.counter].name+"&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;");
+
+			calc.counter++;
+		},
+
+
+		_init: function () {
+			
+			/* You don't want to edit this function */
+
+			var self = this;
+			var arrows = "&lt;div id='sphere-box-up'&gt;&lt;/div&gt;"
+						+"&lt;div id='sphere-box-left'&gt;&lt;/div&gt;"
+						+"&lt;div id='sphere-box-right'&gt;&lt;/div&gt;"
+						+"&lt;div id='sphere-box-down'&gt;&lt;/div&gt;"
+			
+			this.$el.append(arrows);
+			this.$el.append("&lt;div id='sphereBox'&gt;&lt;/div&gt;");
+			
+			self._draw(calc.x, calc.y);
+			calc.upper ++; //we permutate through a set of numbers that increases by two for each new complete square ring around the center
+			calc.lower = calc.upper*-1; //the numbers move in opposite from each other from 0 (i.e. upper = 5 =&gt; lower = -5)
+
+			for (var n = 0; n&lt;calc.numberOfRings; n++){
+				calc.x = calc.lower;
+				calc.y = calc.lower;
+				
+				self._draw(calc.x, calc.y); //start in the top left corner
+
+				while(calc.x &lt; calc.upper){ //move to top right corner
+					calc.x++
+					self._draw(calc.x,calc.y);
+				}
+				while(calc.y &lt; calc.upper){ //move to bottom right corner
+					calc.y++;
+					self._draw(calc.x,calc.y);
+				}
+				while(calc.x &gt; calc.lower){ //move to bottom left corner
+					calc.x--;
+					self._draw(calc.x,calc.y);
+				}
+				while(calc.y &gt; calc.lower+1){ //move to top left corner (almost)
+					calc.y--;
+					self._draw(calc.x,calc.y);
+				}
+
+				calc.upper++; //increment upper
+				calc.lower--; //lower is the opposite of upper
+			}
+
+			self._bindEvents();
+		},
+
+		_bindEvents: function () {
+
+<a name="hover_event"></a>
+/*	THE HOVER EVENT
+===============================================================================		
+*
+*	This is what you'll need to change to customize 
+*	what your boxes do when a user hovers over them.
+*
+* =============================================================================*/ 
+
+$('.sphereElement').hover(function(){
+	$(this).children().toggle();
+	//your code goes here
+});
+
+/* You don't want to edit beyond this point */
+
+			$('#sphere-box-up').on('click', function(){
+				$('.sphereElement').css( "top", calc.moveDown);
+				$("*[data-column='"+calc.downmost+"']").css("top", calc.topY);
+				if(calc.downmost &lt; -1*calc.numberOfRings+1){
+					calc.downmost = calc.numberOfRings;
+					calc.upmost = -1*calc.numberOfRings;
+				}
+				else{
+					calc.upmost = calc.downmost;
+					calc.downmost = calc.downmost - 1;
+				}
+			});
+
+			$('#sphere-box-down').on('click', function(){
+				$('.sphereElement').css( "top", calc.moveUp );
+				$("*[data-column='"+calc.upmost+"']").css("top", calc.bottomY);
+				if(calc.upmost &gt; calc.numberOfRings-1){
+					calc.upmost = -1*calc.numberOfRings;
+					calc.downmost = calc.numberOfRings;
+				}
+				else{
+					calc.downmost = calc.upmost;
+					calc.upmost = calc.upmost + 1;
+				}
+				
+			});
+
+			$('#sphere-box-left').on('click', function(){
+				$('.sphereElement').css( "left", calc.moveRight );
+				$("*[data-row='"+calc.rightmost+"']").css("left", calc.rightX);
+				if(calc.rightmost &lt; -1*calc.numberOfRings+1){
+					calc.rightmost = calc.numberOfRings;
+					calc.leftmost = -1*calc.numberOfRings;
+				}
+				else{
+					calc.leftmost = calc.rightmost;
+					calc.rightmost = calc.rightmost - 1;
+				}
+			});
+
+
+
+			$('#sphere-box-right').on('click', function(){
+				$('.sphereElement').css( "left", calc.moveLeft );
+				$("*[data-row='"+calc.leftmost+"']").css("left", calc.leftX);
+				if(calc.leftmost &gt; calc.numberOfRings-1){
+					calc.rightmost = calc.numberOfRings;
+					calc.leftmost = -1*calc.numberOfRings;
+				}
+				else{
+					calc.rightmost = calc.leftmost;
+					calc.leftmost = calc.leftmost + 1;
+				}
+			});
+
+			
+		}
+	});
+
+	// jQ Plugin
+	$.fn.infiniteFriends = function (opts) {
+		return this.each(function () {
+			// Create & Initialize
+			(new Infinite(this, opts));
+		});
+	};	
+}(jQuery));
+			</code>
+		</pre>
+	</div>
+	<script src="jquery.js"></script>
+	<script src="infinite-xy-scroll.js"></script>	
+	<script>
+		$('.sphereContainer').infiniteFriends();
+
+		$('.logo').hover(function(){
+			$(this).children().toggle();
+		});
+	</script>
+	<script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>	
+</body>
+</html>

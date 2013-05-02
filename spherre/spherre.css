@@ -1,0 +1,113 @@
+
+
+.sphereContainer{
+	width:528px;
+	height:528px;
+	margin:40px auto;
+	position:relative;
+	background:url(spherre-box-bg.png) no-repeat #f2f2f2;
+}
+
+#sphereBox{
+	width:528px;
+	height:530px;
+	overflow:hidden;
+	margin:50px auto;
+	border:1px solid #CCC;
+	position:relative;
+}
+
+#sphere-box-up, #sphere-box-right, #sphere-box-down, #sphere-box-left{
+	width:0;
+	height:0;
+	position:absolute;
+	cursor: pointer;
+	z-index:2;
+}
+#sphere-box-up{
+	left:50%;
+	top:-40px;
+	margin-left:-35px;
+	border-left: 35px solid transparent;
+	border-right: 35px solid transparent;
+	border-bottom: 35px solid #9d9b34;
+}
+
+#sphere-box-right{
+	right:-40px;
+	top:50%;
+	margin-top:-40px;
+	border-bottom: 35px solid transparent;
+	border-left: 35px solid #9d9b34 ;
+	border-top: 35px solid transparent;
+}
+#sphere-box-down{
+	left:50%;
+	bottom:-40px;
+	margin-left:-40px;
+	border-left: 35px solid transparent;
+	border-right: 35px solid transparent;
+	border-top: 35px solid #9d9b34 ;
+}
+#sphere-box-left{
+	left:-40px;
+	top:50%;
+	margin-top:-40px;
+	border-bottom: 35px solid transparent;
+	border-right: 35px solid #9d9b34;
+	border-top: 35px solid transparent;
+}
+
+.sphereElement{
+	display:block;
+	position:absolute;
+	border:1px solid #CCC;
+	height:100px;
+	width:100px;
+	background-color: #f9f9f9;
+	background-image: -moz-linear-gradient(top, #ffffff, #f9f9f9);
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#f9f9f9));
+	background-image: -webkit-linear-gradient(top, #ffffff, #f9f9f9);
+	background-image: -o-linear-gradient(top, #ffffff, #f9f9f9);
+	background-image: linear-gradient(to bottom, #ffffff, #f9f9f9);
+	background-repeat: repeat-x;
+	border: 1px solid #d4d4d4;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#fff2f2f2', GradientType=0);
+	border: 1px solid;
+	border-color: #e5e5e5 #dbdbdb #d2d2d2;
+	-webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
+	-moz-box-shadow: rgba(0,0,0,0.3) 0 1px 3px;
+	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
+
+}
+.sphereElement h2{
+	display:none;
+	color:#CCC;
+	width:100%;
+	height:100%;
+	line-height: 100px;
+	text-align: center;
+	margin:0;
+	background:#272727;
+	font-size: 10px;
+	font-family:'Helvetica Neue', Arial, sans-serif;
+	cursor: pointer;
+}
+
+.sphereElement div{
+	font-family:'Helvetica Neue', Arial, sans-serif;
+	font-size:10px;
+	padding-top:20px;
+	color:#777;
+	width:100%;
+	text-align: center;
+}
+
+.sphereElement div .name{
+	padding-top:10px;
+}
+
+

@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+<head>
+<title>Spherre</title>
+<link href='http://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
+<style>
+
+html, body{
+	margin:0;
+	padding:0;
+}
+body{
+	background: #f2f2f2;
+}
+
+.logo{
+	position:fixed;
+	left:80px;
+	top:0;
+	width:180px;
+	padding:20px 0;
+	background:#272727;;
+	color:#ffffff;
+	font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-weight:lighter;
+	font-size:18px;
+	text-align: center;
+	z-index:9;
+}
+
+.logo h5{
+	margin:0;
+	padding:4px 0;
+	font-size:10px;
+	font-family: 'Julius Sans One', sans-serif;
+}
+
+.logo h6{
+	margin:0;
+	padding:4px 0;
+	font-size:10px;
+	font-family: 'Julius Sans One', sans-serif;
+	display:none;
+}
+
+.logo h6 a{
+	color:#f2f2f2;
+}
+
+.logo h6 a:hover, .logo h6 a:active{
+	text-decoration: none;
+}
+
+.container{
+	width:608px;
+	margin:0 auto;
+	padding:40px 0;
+}
+
+.container h1{
+	font-family: 'Julius Sans One', sans-serif;
+	font-size: 32px;
+	color:#272727;
+	text-shadow:1px 1px 1px #FFF;
+	margin-bottom:5px;
+	border-bottom:1px solid #CCC;
+}
+
+.container p{
+	font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size:15px;
+	color:#575757;
+	line-height:20px;
+}
+
+.container p > a{
+	color:#272727;
+	text-decoration:underline;
+}
+
+/* desert scheme ported from vim to google prettify */
+pre.prettyprint { display: block; background-color: #333; overflow-x:scroll; font-size:14px;}
+pre .nocode { background-color: none; color: #000 }
+pre .str { color: #ffa0a0 } /* string  - pink */
+pre .kwd { color: #f0e68c; font-weight: bold }
+pre .com { color: #87ceeb } /* comment - skyblue */
+pre .typ { color: #98fb98 } /* type    - lightgreen */
+pre .lit { color: #cd5c5c } /* literal - darkred */
+pre .pun { color: #fff }    /* punctuation */
+pre .pln { color: #fff }    /* plaintext */
+pre .tag { color: #f0e68c; font-weight: bold } /* html/xml tag    - lightyellow */
+pre .atn { color: #bdb76b; font-weight: bold } /* attribute name  - khaki */
+pre .atv { color: #ffa0a0 } /* attribute value - pink */
+pre .dec { color: #98fb98 } /* decimal         - lightgreen */
+
+/* Specify class=linenums on a pre to get line numbering */
+ol.linenums { margin-top: 0; margin-bottom: 0; color: #AEAEAE } /* IE indents via margin-left */
+li.L0,li.L1,li.L2,li.L3,li.L5,li.L6,li.L7,li.L8 { list-style-type: none }
+/* Alternate shading for lines */
+li.L1,li.L3,li.L5,li.L7,li.L9 { }
+
+@media print {
+  pre.prettyprint { background-color: none }
+  pre .str, code .str { color: #060 }
+  pre .kwd, code .kwd { color: #006; font-weight: bold }
+  pre .com, code .com { color: #600; font-style: italic }
+  pre .typ, code .typ { color: #404; font-weight: bold }
+  pre .lit, code .lit { color: #044 }
+  pre .pun, code .pun { color: #440 }
+  pre .pln, code .pln { color: #000 }
+  pre .tag, code .tag { color: #006; font-weight: bold }
+  pre .atn, code .atn { color: #404 }
+  pre .atv, code .atv { color: #060 }
+}
+
+</style>
+<link rel="stylesheet" type="text/css" href="spherre.css">
+</head>
+<body>
+
+	<div class="sphereContainer"></div>
+
+
+	<script src="jquery.js"></script>
+	<script src="infinite-xy-scroll.js"></script>	
+	<script>
+		$('.sphereContainer').infiniteFriends({
+			elementHeight: 100,
+			elementMargin: 5,
+			elementWidth: 100,
+			centerX: 212,
+			centerY: 212
+		});
+
+	</script>
+	<script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>	
+</body>
+</html>

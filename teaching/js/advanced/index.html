@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script>
+//build the overlay grid on top of the preview image
+function buildPreviewGrid($preview_img, width, height, tile_size){
+
+	function drawGrid() {
+		for (var x=tile_size; x<width; x+=tile_size) {
+			context.rect(x-1,0,2,height);
+		}
+		for (var y=tile_size; y<height; y+=tile_size) {
+			context.rect(0,y-1,width,2);
+		}
+	}
+
+	var $preview_grid = $("<canvas />").attr({id: "preview_grid"}), 
+		context = $preview_grid.get(0).getContext("2d");
+		//set up the grid canas
+	$preview_grid
+		.attr({width:width, height:height})
+		.css({width:width+"px", height:height+"px"});
+
+		context.save();
+		//first, draw the grid to use a mask for the preview image
+		context.beginPath();
+		drawGrid();
+		context.clip(); //turns the drawing into a mask
+
+		//next, draw the preview image onto the canvas using the mask
+		context.drawImage($preview_img.get(0),0,0);
+		context.restore();
+
+		//set composite mode for redrawing the grid on top of the previeous
+		context.globalCompositeOperation = "lighter";
+		context.globalAlpha = 0.7;
+
+		//now, redraw the the grid clipped preview image again 
+		context.save();
+		context.beginPath();
+		drawGrid();
+		context.clip(); //turns the drawing into a mask
+
+		//redraw the preview image (masked by the grid) onto the canvas
+		context.drawImage($preview_img.get(0),0,0);
+		context.restore();
+}
+</script>	
+</head>
+<body>
+	
+</body>
+</html>
+

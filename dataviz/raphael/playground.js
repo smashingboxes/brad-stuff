@@ -1,0 +1,1 @@
+$('#changeColorLink').bind('click', fun)

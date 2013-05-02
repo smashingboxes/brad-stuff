@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+<title>Infinite Friends | A jQuery Plugin</title>
+<link href='http://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
+<style>
+
+html, body{
+	margin:0;
+	padding:0;
+}
+body{
+	background: #f2f2f2;
+}
+
+.logo{
+	position:fixed;
+	left:80px;
+	top:0;
+	width:180px;
+	padding:20px 0;
+	background:#272727;;
+	color:#ffffff;
+	font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-weight:lighter;
+	font-size:18px;
+	text-align: center;
+	z-index:9;
+}
+
+.logo h5{
+	margin:0;
+	padding:4px 0;
+	font-size:10px;
+	font-family: 'Julius Sans One', sans-serif;
+}
+
+
+</style>
+<link rel="stylesheet" type="text/css" href="infinite-xy-scroll.css">
+</head>
+<body>
+<div class="logo">Infinite Friends<h5>A jQuery Plugin</h5></div>
+	<div class="sphereContainer"></div>
+
+	
+	<script src="jquery.js"></script>
+	<script src="infinite-xy-scroll.js"></script>	
+	<script>
+		$('.sphereContainer').infiniteFriends();
+	</script>
+	
+</body>
+</html>

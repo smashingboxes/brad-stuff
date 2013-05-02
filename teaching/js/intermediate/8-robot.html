@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<style>
+ .maze{
+  background: url(http://www.physics.uwo.ca/science_olympics/images/amarod01.gif) no-repeat;
+
+ }
+</style>
+<script>
+
+	/* Initialize Variables */
+	var currentX = 440,
+		currentY = 380,
+		speed = 20;
+
+
+
+	/* Event Controllers */
+	$(document).keydown(function (e) {
+	  var keyCode = e.keyCode || e.which,
+	      arrow = {left: 37, up: 38, right: 39, down: 40 };
+
+	  switch (keyCode) {
+	    case arrow.left: moveLeft();
+	    break;
+
+	    case arrow.up: moveUp();
+	    break;
+
+	    case arrow.right: moveRight();
+	    break;
+
+	    case arrow.down: moveDown();
+	    break;
+	  }
+	});
+
+
+	/* View Controllers */
+	function moveLeft(){
+		currentX -= speed;
+		$('.robot').attr('cx', currentX);
+	}
+
+	function moveUp(){
+		currentY -= speed;
+		$('.robot').attr('cy', currentY);
+	}
+
+	function moveRight(){
+		currentX += speed;
+		$('.robot').attr('cx', currentX);
+	}
+
+	function moveDown(){
+		currentY += speed;
+		$('.robot').attr('cy', currentY);
+	}
+
+	/* View HTML */
+
+$(function(){
+	var robotHTML = '<svg width="1024" height="768" class="maze">'
+					+ '<circle class="robot" cx="440" cy="380" r="15" fill="yellow"/>'
+					+ '</svg>';
+
+	$('body').append(robotHTML);
+});
+
+
+</script>
+</head>
+<body>
+	
+</body>
+</html>

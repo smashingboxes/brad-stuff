@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+
+<script>
+$(function(){
+
+	tt = "<table>"
+	for(var i = 1; i<13; i++){
+		tt += "<tr>";
+
+			for (var j=1; j<13; j++){
+				tt += "<td>";
+				value = i*j;
+				tt += value;
+				tt += "</td>";				
+			}
+
+		tt += "</tr>";
+	}
+
+	$('body').prepend(tt);
+
+});
+</script>
+
+
+
+</head>
+<body>
+
+</body>
+</html>

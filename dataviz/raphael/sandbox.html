@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>Dognition | Data Visualization</title>
+		
+		<link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+		<link type="text/css" href="css/chosen.css" media="screen" rel="stylesheet"  />
+		<link type="text/css" href="css/style.css" media="screen" rel="stylesheet"  />
+		
+		<script src="http://code.jquery.com/jquery-latest.js" type="text/javascript"></script>
+		<script src="js/tooltip.js" type="text/javascript"></script>
+		<script src="js/raphael.js" type="text/javascript"></script>
+     	
+		<script type="text/javascript">
+        var o = {
+	init: function(){
+		this.diagram();
+	},
+	random: function(l, u){
+		return Math.floor((Math.random()*(u-l+1))+l);
+	},
+	diagram: function(){
+		var r = Raphael('diagram', 600, 600),
+			rad = 73,
+			defaultText = 'Muffin',
+			speed = 250;
+		
+		r.circle(300, 300, 85).attr({ stroke: 'none', fill: 'none' });
+		
+		var title = r.text(300, 300, defaultText).attr({
+			font: '20px Droid Sans',
+			fill: '#f2f2f2'
+		}).toFront();
+		
+		r.customAttributes.arc = function(value, color, rad){
+			var v = 3.6*value,
+				alpha = v == 360 ? 359.99 : v,
+				random = o.random(91, 240),
+				a = (random-alpha) * Math.PI/180,
+				b = random * Math.PI/180,
+				sx = 300 + rad * Math.cos(b),
+				sy = 300 - rad * Math.sin(b),
+				x = 300 + rad * Math.cos(a),
+				y = 300 - rad * Math.sin(a),
+				path = [['M', sx, sy], ['A', rad, rad, 0, +(alpha > 180), 1, x, y]];
+			return { path: path, stroke: color }
+		}
+		
+		$('.get').find('.arc').each(function(i){
+			var t = $(this), 
+				color = t.find('.color').val(),
+				value = t.find('.percent').val(),
+				text = t.find('.text').text();
+			
+			rad += 30;	
+			var z = r.path().attr({ arc: [value, color, rad], 'stroke-width': 26 });
+			
+			
+			
+			z.mouseover(function(){
+                this.animate({ 'stroke-width': 50, opacity: .75 }, 1000, 'elastic');
+                if(Raphael.type != 'VML') //solves IE problem
+				this.toFront();
+				title.stop().animate({ opacity: 0 }, speed, '>', function(){
+					this.attr({ text: text + '\n' + value + '%' }).animate({ opacity: 1 }, speed, '<');
+				});
+            }).mouseout(function(){
+				this.stop().animate({ 'stroke-width': 26, opacity: 1 }, speed*4, 'elastic');
+				title.stop().animate({ opacity: 0 }, speed, '>', function(){
+					title.attr({ text: defaultText }).animate({ opacity: 1 }, speed, '<');
+				});	
+            });
+		});
+		
+	}
+}
+$(function(){ o.init(); });
+	
+	
+	$(document).ready(function() {
+	$('li[rel="tooltip"]').tooltip({placement:'right'});
+	$("#skills-legend").hover(function(){
+    $("#diagram").fadeOut("slow");
+},
+function(){
+    $("#diagram").fadeIn();
+});
+						   });
+</script>
+	</head>
+	<body>
+    <div id="topbar"><div class="inner"><h1><a href="/">Data Visualization</a></h1></div></div>
+		<div id="content">
+			<div class="legend">
+				<h1>Muffin</h1>
+                
+				<div class="skills">
+					<ul id="skills-legend">
+						<li style="width:75%;" class="skills-one" rel="tooltip" title="Because of dogs' special relationship with us, they may have developed a basic form of empathy toward humans. Muffin seems more individualistic, or wolf-like, when it comes to the two empathy games you played. However, this does not mean Muffin is not attached to you. Wolves have strong relationships within their pack. Muffin may just have another way of connecting with you.">Individualistic</li>
+						<li style="width:50%;" class="skills-two" rel="tooltip" title="It looks like Muffin tended to switch back and forth between collaborative and self-reliant strategies. Sometimes she followed your communicative cues, but sometimes she chose to ignore them. This could be because Muffin either struggles to read your cues, or because there was a treat in both places and Muffin didn't feel the need to look to you for help.">Self-Reliant</li>
+						<li style="width:80%;" class="skills-three" rel="tooltip" title="Based on the length of time Muffin waited before she took the treats, it seems she does have some understanding of what you can and can't see. Muffin's performance also suggests this is not the only strategy she uses when deciding how obedient she should be.">Trustworthy</li>
+						<li style="width:68%;"class="skills-four" rel="tooltip" title="Muffin is definitely retrospective, with a rat-like spatial memory. She can probably recall rich details about where things are located throughout your house and neighborhood. This may not seem like an appealing skill when Muffin digs up old bones that have been buried in the yard for months and drags them into the living room, but finding cached food is one of the benefits of having a good spatial memory. In the wild, it can mean the difference between life and death.">Retrospective</li>
+						<li style="width:96%;" class="skills-five" rel="tooltip" title="Like a kea, Muffin was more impulsive, relying on your help rather than her figuring out the solution through logic. This is a completely viable strategy - when Muffin is unsure, she obviously turns to you for help.">Impulsive</li>
+					</ul>
+				</div>	
+			</div>
+			<div id="diagram"></div>
+		</div>
+
+		
+
+		<div class="get">
+			<div class="arc">
+				<span class="text">Individualistic</span>
+				<input type="hidden" class="percent" value="75" />
+				<input type="hidden" class="color" value="#ff4e17" />
+			</div>
+			<div class="arc">
+				<span class="text">Self-Reliant</span>
+				<input type="hidden" class="percent" value="50" />
+				<input type="hidden" class="color" value="#3ab448" />
+			</div>
+			<div class="arc">
+				<span class="text">Trustworthy</span>
+				<input type="hidden" class="percent" value="80" />
+				<input type="hidden" class="color" value="#1e99ba" />
+			</div>
+			<div class="arc">
+				<span class="text">Retrospective</span>
+				<input type="hidden" class="percent" value="68" />
+				<input type="hidden" class="color" value="#20b3b7" />
+			</div>
+			<div class="arc">
+				<span class="text">Impulsive</span>
+				<input type="hidden" class="percent" value="96" />
+				<input type="hidden" class="color" value="#8d8e8e" />
+			</div>
+		</div>
+	</body>
+</html>

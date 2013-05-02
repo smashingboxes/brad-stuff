@@ -1,0 +1,719 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>Dognition | Data Visualization</title>
+		<link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+		<link type="text/css" href="css/style.css" media="screen" rel="stylesheet"  />
+		<!-- fonts -->
+		<link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css'>
+		<!-- script come after links-->
+		<script src="http://code.jquery.com/jquery-latest.js" type="text/javascript"></script>
+		<script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>		
+		<script src="js/raphael-1.5.2-min.js" type="text/javascript"></script>
+				<script type='text/javascript'> 
+/*
+* Specify the information about our spreadsheet
+*/
+var spreadsheet_id = "0Ao_UF0lfy5w5dHNGT084MGcwUFFGRUxmS1ZWVTJpcHc",
+worksheet_id = "od6";
+
+        /*
+         * Creates a script tag in the page that loads in the 
+         * JSON feed for the specified key/ID. 
+         * Once loaded, it calls loadGraphJSON.
+         */
+var columns = [
+            	[], //empathy data
+            	[], //communication data
+            	[], //cunning data
+            	[], //memory data
+            	[], //reasoning data
+            ];
+
+
+function getJSON() {
+
+          var script = document.createElement('script');
+          
+          script.setAttribute('src', 'http://spreadsheets.google.com/feeds/list'
+                                 + '/' + spreadsheet_id + '/' + worksheet_id + '/public/values' +
+                                '?alt=json-in-script&callback=loadGraphJSON');
+          // insert the script tag into the header
+          document.documentElement.firstChild.appendChild(script);
+}
+        
+        /**
+         * Extract the information we need into 2 lists (data and labels)
+         * We iterate over the rows (json.feed.entry) of the json object
+         * and extract our day and distance columns.
+         * Once this list created, we call drawChart to draw the graph
+         */
+function loadGraphJSON(json) {
+		/* We represent the table as an array of array */
+            
+	
+            for (var i = 0; i < json.feed.entry.length; i++) {
+                var entry = json.feed.entry[i];
+                //this is our first column
+                columns[0].push(parseFloat(entry["gsx$empathy"].$t));
+                // this is our second column
+                // We need to convert it to float because we get the data as string
+                columns[1].push(parseFloat(entry["gsx$communication"].$t));
+				columns[2].push(parseFloat(entry["gsx$cunning"].$t));
+				columns[3].push(parseFloat(entry["gsx$memory"].$t));
+				columns[4].push(parseFloat(entry["gsx$reasoning"].$t));
+		
+            }
+
+            DrawPentagon();
+
+}
+
+
+
+/* Our statisitics package 
+   ======================= */
+
+
+(function(){find.stats= {};
+	//hat tip to d3.stats.js and all of its contributors
+	find.stats.mean = function(x){
+	  var s = 0,
+	      n = x.length,
+	      i = -1;
+	  while (++i < n) s += x[i];
+	  return s / n;
+	}
+
+	find.stats.variance = function(x){
+	  var mean = find.stats.mean(x),
+	      n = x.length,
+	      i = -1,
+	      s = 0;
+	  while (++i < n) {
+	    var v = x[i] - mean;
+	    s += v * v;
+	  }
+	  return s / (n - 1);
+	}
+
+	find.stats.stdev = function(x){
+	  return Math.sqrt(find.stats.variance(x));
+	}
+
+	find.stats.min = function(x){
+	  var r = x[0];
+	  n = x.length,
+	  i = -1
+	  while (++i < n){
+	  	if (x[i] < r){r = x[i]}
+	  }
+	  return r;
+	}
+
+	find.stats.max = function(x){
+	  var r = x[0];
+	  n = x.length,
+	  i = -1
+	  while (++i < n){
+	  	if (x[i] > r){r = x[i]}
+	  }
+	  return r;
+	}
+
+	find.stats.count = function(x, y, z){
+		var count = 0;
+		for(var i=0; i<z.length; i++){
+			if(z[i] > x && z[i]<= y){
+				count++;
+			}
+		}
+		return count;
+	}
+})()
+
+
+var DrawPentagon = function() {
+
+ 	document.body.style.zoom = "110%" ;
+
+	var draw = new Raphael("pentagon"), 
+
+
+	centerX = 316, centerY = 253,
+	pointerLocations = [], 
+	triangles = [], 
+	sparkLine, pointerLine, dimensionTriangle, labels, triangleBase, theBundle, minLabel, maxLabel, labelBox,
+	distributionData = [], 
+	i, j, h,
+	values = [],
+	labels=[ 
+		["EMPATHY","BONDED","INDIVIDUALISTIC"], 
+		["COMMUNICATION","COLLABORATIVE", "SELF-RELIANT"],
+		["CUNNING","WILY", "TRUSTWORTHY"], 				
+		["MEMORY", "PRESENT-MINDED", "RETROSPECTIVE"], 
+		["REASONING","LOGICAL", "IMPULSIVE"]
+	],
+		
+		
+	borderColors = ['#ea5226', '#e78400', '#45b534','#2598bc','#2db1b8'],
+	pointerX = [];
+	pointerValues = [0, 0, 0, 0, 0];
+
+	for (i=0; i<5; i++) {
+		
+		values[i] = getDistributionValues(5, i);
+
+		pointerLocations[i] = normalizePointerLocation(i);
+	
+		label = draw.text(centerX, 490, labels[i][0]).attr({ 
+				'font' : '15px Ubuntu',
+				'font-weight' : 'bold',
+				'fill' : borderColors[i],
+				'text-anchor' : "middle"
+		});
+
+				
+		var tmpX = label.getBBox().width;
+		var tmpY = label.getBBox().height;
+
+		labelBox = draw.rect((centerX - 0.7*tmpX), 478, (1.4*tmpX), (1.5*tmpY)).attr({
+				'stroke' : borderColors[i],
+				'stroke-width' : 4
+		});
+		
+		minLabel = draw.text(211, 448, labels[i][1]).attr({
+				'font' : '10px Ubuntu',
+				'font-weight' : 'bold',
+				'fill' : borderColors[i],
+				'text-anchor' : 'start',
+				'opacity' : 0.7
+		});
+
+		maxLabel = draw.text(435, 448, labels[i][2]).attr({
+				'font' : '10px Ubuntu',
+				'font-weight' : 'bold',
+				'fill' : borderColors[i],
+				'text-anchor' : 'end',
+				'opacity' : 0.7
+		});
+
+		if(isFlippable(i)){
+			minLabel.attr({'text-anchor' : 'end',});
+			maxLabel.attr({'text-anchor' : 'start'});
+		}
+		
+		
+		pointerLine = draw.path(["M", centerX, centerY + 12] + pointerLocations[i]).attr({ 
+				'fill' : borderColors[i],
+				'stroke' : 'none'
+		});
+
+
+		sparkFill = draw.path(values[i] + "L208,428 245,428z").attr({
+				'opacity' : 0.2,
+				'fill'	: '#000',
+				'stroke' : 'none'
+		});
+
+	
+		dimensionTriangle = draw.path(["M", centerX , centerY + 10] + "l-105,165 224,0z").attr({ 
+				'stroke': '#ADAFAF',
+				'fill': 'none',
+				'stroke-dasharray': ["-"],
+				'stroke-width': 1
+	    	});
+
+		triangleBase = draw.rect(centerX - 105, centerY + 175, 225, 8).attr({
+				'stroke': 'none',
+				'fill': borderColors[i]
+		});
+		
+	   	
+		triangles.push(sparkFill, dimensionTriangle, pointerLine, label, labelBox, minLabel, maxLabel,  triangleBase);
+
+	    theBundle = draw.set();
+	    theBundle.push(pointerLine, dimensionTriangle, sparkFill, label, labelBox, minLabel, maxLabel, triangleBase);
+	    theBundle.rotate(i * 72, centerX, centerY);
+            
+
+	    if(isFlippable(i)){
+			
+			mmlabelHeight = minLabel.getBBox().height;	
+			labelHeight = label.getBBox().height;
+
+			minLabel.node.setAttribute(
+				'transform', minLabel.node.getAttribute('transform')+ 
+				' rotate(180 '+ minLabel.node.getAttribute('x')+ ' '+
+				(minLabel.node.getAttribute('y')-(mmlabelHeight/3))+ ')'
+			);
+		
+			maxLabel.node.setAttribute(
+				'transform', maxLabel.node.getAttribute('transform')+
+				' rotate(180 '+ maxLabel.node.getAttribute('x')+ ' '+
+				(maxLabel.node.getAttribute('y')-(mmlabelHeight/3))+ ')'
+			);
+
+			label.node.setAttribute(
+				'transform', label.node.getAttribute('transform')+
+				' rotate(180 '+ label.node.getAttribute('x') + ' '+
+				(label.node.getAttribute('y')-(labelHeight/3))+ ')'			
+			);
+	  	}
+	}
+
+	function normalizePointerLocation(h){
+		var str = "";
+		var value = getRandomInt(70, -70);
+		pointerX = centerX - value;
+		
+		if(value<=15 && value >= -15){
+			str = "l"+ (value + 10) + ", 152, -10, 11, -10, -11z";		
+		}		
+		else if(value < -15){
+			str = "l"+(value + 10)+ ", 156, -10 , 7, -8 , -11z";
+		}
+		else{
+			str = "l"+(value - 8)+ ", 156, 10 , 7, 8 , -11z";
+		}
+	
+		return str;
+	}
+
+
+
+	function getDistributionValues(length, j) {
+		            
+		            var path = "",
+		                x = 206,
+		                y = 428;
+		           	
+		            distributionData[j] = distributionData[j] || [];
+		            
+		            for (var i = 0; i < length; i++) {
+		            	var tmpColumn = columns[j];
+		            	distributionData[j][i] = 0.6*searchBucket(tmpColumn, i, j, length)
+		                distributionData[j][0] = 0;
+		                distributionData[j][length-1] = 0;
+
+		                if (i) {
+		                     path += "C" + [x + 48, y, (x += 48) - 24, (y = 428 - distributionData[j][i]), x, y];
+		                }
+		                 
+		                else {
+		                     path += "M" + [210, (y = 428 - distributionData[j][i])];
+		                }
+		            }
+		            return path;
+		        }
+	}
+
+	function searchBucket(anArray, currentStep, columnID, numberOfBlocks){
+		
+		var min = find.stats.min(anArray),
+			max = find.stats.max(anArray),
+			bucketSize = (max-min)/numberOfBlocks,
+			hi = bucketSize*currentStep,
+			lo = hi - bucketSize,
+			dbg = getLabel(columnID);
+
+			console.log(dbg + " low : " + lo + " high : " + hi + " count : " + find.stats.count(lo, hi, anArray));
+			return(find.stats.count(lo, hi, anArray));
+			
+	}
+
+	
+
+	function isFlippable(order){
+		return (order > 1 && order < 4);
+	}
+
+	function getRandomInt (min, max) {
+	    return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
+
+	function getLabel(x){
+		var labels = ["Empathy", "Communication", "Cunning", "Memory", "Reasoning"];
+		return labels[x];
+	}
+
+
+	var alreadyrunflag = 0;
+
+	if (document.addEventListener)
+	    document.addEventListener("DOMContentLoaded", function(){
+		alreadyrunflag=1; 
+		getJSON();
+		
+	    }, false);
+	else if (document.all && !window.opera) {
+	    document.write('<script type="text/javascript" id="contentloadtag" defer="defer" src="javascript:void(0)"><\/script>');
+	    var contentloadtag = document.getElementById("contentloadtag")
+	    contentloadtag.onreadystatechange=function(){
+		if (this.readyState=="complete"){
+		    alreadyrunflag=1;
+		    getJSON();
+		   
+		}
+	    }
+}
+
+window.onload = function(){
+  setTimeout("if (!alreadyrunflag){DrawPentagon}", 0);
+}
+</script>
+
+</head>
+<body>
+    <div id="content">
+ 		<div id="pentagon"></div>
+ 		<h1>HTML</h1>
+ 		<pre class="prettyprint">
+ 		<code>
+ &lt;div id="content"&gt;
+ 	&lt;div id="pentagon"&gt;&lt;/div&gt;
+ &lt;/div&gt;		
+ 		</code>
+ 		</pre>
+		<h1>Load the Data <small>from Google Docs through JSON</small></h1>
+
+		<pre class="prettyprint">
+		<code>
+/*
+* Specify the information about our spreadsheet
+*/
+var spreadsheet_id = "0Ao_UF0lfy5w5dHNGT084MGcwUFFGRUxmS1ZWVTJpcHc",
+worksheet_id = "od6";
+
+        /*
+         * Creates a script tag in the page that loads in the 
+         * JSON feed for the specified key/ID. 
+         * Once loaded, it calls loadGraphJSON.
+         */
+var columns = [
+            	[], //empathy data
+            	[], //communication data
+            	[], //cunning data
+            	[], //memory data
+            	[], //reasoning data
+            ];
+
+
+function getJSON() {
+
+          var script = document.createElement('script');
+          
+          script.setAttribute('src', 'http://spreadsheets.google.com/feeds/list'
+                                 + '/' + spreadsheet_id + '/' + worksheet_id + '/public/values' +
+                                '?alt=json-in-script&callback=loadGraphJSON');
+          // insert the script tag into the header
+          document.documentElement.firstChild.appendChild(script);
+}
+        
+        /**
+         * Extract the information we need into 2 lists (data and labels)
+         * We iterate over the rows (json.feed.entry) of the json object
+         * and extract our day and distance columns.
+         * Once this list created, we call drawChart to draw the graph
+         */
+function loadGraphJSON(json) {
+		/* We represent the table as an array of array */
+            
+	
+            for (var i = 0; i < json.feed.entry.length; i++) {
+                var entry = json.feed.entry[i];
+                //this is our first column
+                columns[0].push(parseFloat(entry["gsx$empathy"].$t));
+                // this is our second column
+                // We need to convert it to float because we get the data as string
+                columns[1].push(parseFloat(entry["gsx$communication"].$t));
+				columns[2].push(parseFloat(entry["gsx$cunning"].$t));
+				columns[3].push(parseFloat(entry["gsx$memory"].$t));
+				columns[4].push(parseFloat(entry["gsx$reasoning"].$t));
+		
+            }
+
+            DrawPentagon();
+
+}
+		</code>
+		</pre>
+		<h1>Draw the Pentagon <small>with svg using raphael.js</small></h1>
+		<pre class="prettyprint">
+			<code>
+var DrawPentagon = function() {
+
+ 	document.body.style.zoom = "110%" ;
+
+	var draw = new Raphael("pentagon"), 
+
+
+	centerX = 316, centerY = 253,
+	pointerLocations = [], 
+	triangles = [], 
+	sparkLine, pointerLine, dimensionTriangle, labels, triangleBase, theBundle, minLabel, maxLabel, labelBox,
+	distributionData = [], 
+	i, j, h,
+	values = [],
+	labels=[ 
+		["EMPATHY","BONDED","INDIVIDUALISTIC"], 
+		["COMMUNICATION","COLLABORATIVE", "SELF-RELIANT"],
+		["CUNNING","WILY", "TRUSTWORTHY"], 				
+		["MEMORY", "PRESENT-MINDED", "RETROSPECTIVE"], 
+		["REASONING","LOGICAL", "IMPULSIVE"]
+	],
+		
+		
+	borderColors = ['#ea5226', '#e78400', '#45b534','#2598bc','#2db1b8'],
+	pointerX = [];
+	pointerValues = [0, 0, 0, 0, 0];
+
+	for (i=0; i<5; i++) {
+		
+		values[i] = getDistributionValues(5, i);
+
+		pointerLocations[i] = normalizePointerLocation(i);
+	
+		label = draw.text(centerX, 490, labels[i][0]).attr({ 
+				'font' : '15px Ubuntu',
+				'font-weight' : 'bold',
+				'fill' : borderColors[i],
+				'text-anchor' : "middle"
+		});
+
+				
+		var tmpX = label.getBBox().width;
+		var tmpY = label.getBBox().height;
+
+		labelBox = draw.rect((centerX - 0.7*tmpX), 475, (1.4*tmpX), (1.5*tmpY)).attr({
+				'stroke' : borderColors[i],
+				'stroke-width' : 4
+		});
+		
+		minLabel = draw.text(211, 448, labels[i][1]).attr({
+				'font' : '10px Ubuntu',
+				'font-weight' : 'bold',
+				'fill' : borderColors[i],
+				'text-anchor' : 'start',
+				'opacity' : 0.7
+		});
+
+		maxLabel = draw.text(435, 448, labels[i][2]).attr({
+				'font' : '10px Ubuntu',
+				'font-weight' : 'bold',
+				'fill' : borderColors[i],
+				'text-anchor' : 'end',
+				'opacity' : 0.7
+		});
+
+		if(isFlippable(i)){
+			minLabel.attr({'text-anchor' : 'end',});
+			maxLabel.attr({'text-anchor' : 'start'});
+		}
+		
+		
+		pointerLine = draw.path(["M", centerX, centerY + 12] + pointerLocations[i]).attr({ 
+				'fill' : borderColors[i],
+				'stroke' : 'none'
+		});
+
+
+		sparkFill = draw.path(values[i] + "L208,428 245,428z").attr({
+				'opacity' : 0.2,
+				'fill'	: '#000',
+				'stroke' : 'none'
+		});
+
+	
+		dimensionTriangle = draw.path(["M", centerX , centerY + 10] + "l-105,165 224,0z").attr({ 
+				'stroke': '#ADAFAF',
+				'fill': 'none',
+				'stroke-dasharray': ["-"],
+				'stroke-width': 1
+	    	});
+
+		triangleBase = draw.rect(centerX - 105, centerY + 175, 225, 8).attr({
+				'stroke': 'none',
+				'fill': borderColors[i]
+		});
+		
+	   	
+		triangles.push(sparkFill, dimensionTriangle, pointerLine, label, labelBox, minLabel, maxLabel,  triangleBase);
+
+	    theBundle = draw.set();
+	    theBundle.push(pointerLine, dimensionTriangle, sparkFill, label, labelBox, minLabel, maxLabel, triangleBase);
+	    theBundle.rotate(i * 72, centerX, centerY);
+            
+
+	    if(isFlippable(i)){
+			
+			mmlabelHeight = minLabel.getBBox().height;	
+			labelHeight = label.getBBox().height;
+
+			minLabel.node.setAttribute(
+				'transform', minLabel.node.getAttribute('transform')+ 
+				' rotate(180 '+ minLabel.node.getAttribute('x')+ ' '+
+				(minLabel.node.getAttribute('y')-(mmlabelHeight/3))+ ')'
+			);
+		
+			maxLabel.node.setAttribute(
+				'transform', maxLabel.node.getAttribute('transform')+
+				' rotate(180 '+ maxLabel.node.getAttribute('x')+ ' '+
+				(maxLabel.node.getAttribute('y')-(mmlabelHeight/3))+ ')'
+			);
+
+			label.node.setAttribute(
+				'transform', label.node.getAttribute('transform')+
+				' rotate(180 '+ label.node.getAttribute('x') + ' '+
+				(label.node.getAttribute('y')-(labelHeight/3))+ ')'			
+			);
+	  	}
+	}
+
+	function normalizePointerLocation(h){
+		var str = "";
+		var value = getRandomInt(70, -70);
+		pointerX = centerX - value;
+		
+		if(value<=15 && value >= -15){
+			str = "l"+ (value + 10) + ", 152, -10, 11, -10, -11z";		
+		}		
+		else if(value < -15){
+			str = "l"+(value + 10)+ ", 156, -10 , 7, -8 , -11z";
+		}
+		else{
+			str = "l"+(value - 8)+ ", 156, 10 , 7, 8 , -11z";
+		}
+	
+		return str;
+	}
+
+
+
+	function getDistributionValues(length, j) {
+		            
+		            var path = "",
+		                x = 206,
+		                y = 428;
+		           	
+		            distributionData[j] = distributionData[j] || [];
+		            
+		            for (var i = 0; i < length; i++) {
+		            	var tmpColumn = columns[j];
+		            	distributionData[j][i] = 0.6*searchBucket(tmpColumn, i, j, length)
+		                distributionData[j][0] = 0;
+		                distributionData[j][length-1] = 0;
+
+		                if (i) {
+		                     path += "C" + [x + 48, y, (x += 48) - 24, (y = 428 - distributionData[j][i]), x, y];
+		                }
+		                 
+		                else {
+		                     path += "M" + [210, (y = 428 - distributionData[j][i])];
+		                }
+		            }
+		            return path;
+		        }
+	}
+
+	function searchBucket(anArray, currentStep, columnID, numberOfBlocks){
+		
+		var min = find.stats.min(anArray),
+			max = find.stats.max(anArray),
+			bucketSize = (max-min)/numberOfBlocks,
+			hi = bucketSize*currentStep,
+			lo = hi - bucketSize,
+			dbg = getLabel(columnID);
+
+			console.log(dbg + " low : " + lo + " high : " + hi + " count : " + find.stats.count(lo, hi, anArray));
+			return(find.stats.count(lo, hi, anArray));
+			
+	}
+
+	
+
+	function isFlippable(order){
+		return (order > 1 && order < 4);
+	}
+
+	function getRandomInt (min, max) {
+	    return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
+
+	function getLabel(x){
+		var labels = ["Empathy", "Communication", "Cunning", "Memory", "Reasoning"];
+		return labels[x];
+	}
+
+}				
+			</code>
+		</pre>
+
+		<h1>Math Library</h2>
+		<pre class="prettyprint">
+			<code>
+/* Our statisitics package 
+   ======================= */
+
+
+(function(){find.stats= {};
+	//hat tip to d3.stats.js and all of its contributors
+	find.stats.mean = function(x){
+	  var s = 0,
+	      n = x.length,
+	      i = -1;
+	  while (++i < n) s += x[i];
+	  return s / n;
+	}
+
+	find.stats.variance = function(x){
+	  var mean = find.stats.mean(x),
+	      n = x.length,
+	      i = -1,
+	      s = 0;
+	  while (++i < n) {
+	    var v = x[i] - mean;
+	    s += v * v;
+	  }
+	  return s / (n - 1);
+	}
+
+	find.stats.stdev = function(x){
+	  return Math.sqrt(find.stats.variance(x));
+	}
+
+	find.stats.min = function(x){
+	  var r = x[0];
+	  n = x.length,
+	  i = -1
+	  while (++i < n){
+	  	if (x[i] < r){r = x[i]}
+	  }
+	  return r;
+	}
+
+	find.stats.max = function(x){
+	  var r = x[0];
+	  n = x.length,
+	  i = -1
+	  while (++i < n){
+	  	if (x[i] > r){r = x[i]}
+	  }
+	  return r;
+	}
+
+	find.stats.count = function(x, y, z){
+		var count = 0;
+		for(var i=0; i<z.length; i++){
+			if(z[i] > x && z[i]<= y){
+				count++;
+			}
+		}
+		return count;
+	}
+})()
+			</code>
+		</pre>		
+	</body>
+</html>

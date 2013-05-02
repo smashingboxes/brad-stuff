@@ -1,0 +1,165 @@
+<html>
+<head>
+<title>Kaplan Meier</title>
+<link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css'>
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.0.8/d3.min.js"></script>
+<style>
+body{
+	font-family:'Ubuntu', 'Helvetica Neue', Helvetica, Arial;
+	margin:20px auto;
+	width:808px;
+}
+</style>
+</head>
+<body>
+
+<script>
+/* Globals */
+var w = 768, h=480, m=20, max = min = 0;
+
+/* Data Given */
+
+data = {
+
+treatments: [ // Order matters | data.treatments[a][i].t is always less than data.treatments[a][i+1].t
+	[
+		{
+			t: 6, // t = Time of the event
+			d: 1, // d = Number of patients dead during this period
+			n: 23 // n = Number alive at start of the day
+			//survival: survival = Percent that survive this period
+			//progression: progression = Percent that die during this period
+			//prob: prob = Product of survival probabilities up to and including this period	
+		},
+		{ t: 12, d: 1, n: 22 },
+		{ t: 21, d: 1, n: 21 },
+		{ t: 27, d: 1, n: 20 },
+		{ t: 32, d: 1, n: 19 },
+		{ t: 39, d: 1, n: 18 },
+		{ t: 43, d: 2, n: 16 },
+		{ t: 89, d: 1, n: 14 },
+		{ t: 261, d: 1, n: 8 },
+		{ t: 263, d: 1, n: 7 },
+		{ t: 270, d: 1, n: 6 },
+		{ t: 311, d: 1, n: 4 }
+	],
+	[
+		{ t: 9, d: 1, n: 23,},
+		{ t: 13, d: 1, n: 22,},
+		{ t: 27, d: 1, n: 21,},
+		{ t: 38, d: 1, n: 20,},
+		{ t: 49, d: 2, n: 18,},
+		{ t: 93, d: 1, n: 15,},
+		{ t: 126, d: 1, n: 12,},
+		{ t: 218, d: 1, n: 9, },
+		{ t: 301, d: 1, n: 5, },
+		{ t: 333, d: 1, n: 4, }
+	]
+]};
+
+/* Computed Data progression, survival, prob, censored */
+
+for(var a=0; a<data.treatments.length; a++){
+	for (var b=0; b<data.treatments[a].length; b++){
+		var reed = data.treatments[a][b];
+		var brad = (b>0) ? data.treatments[a][b-1].n - reed.d : reed.n;
+		
+		reed.progression = reed.d/reed.n;
+		reed.survival = 1 - reed.progression;
+		reed.prob = (b == 0) ? reed.survival : data.treatments[a][b-1].prob*reed.survival;
+		max = (max < reed.t) ? reed.t : max;
+		reed.censored = (reed.n < brad) ? true : false;
+	}	
+}
+
+console.log(data);
+
+/* Begin d3.js */
+
+//Scalar functions
+var x = d3.scale.linear().domain([0, max]).range([0,w-m*2]);
+var y = d3.scale.linear().domain([1, 0]).range([0, h-m]);
+
+//Define axses
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .tickSize(2)
+    .tickPadding(6)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .tickSize(2)
+    .tickPadding(6)
+    .orient("left");
+
+//This is the accessor function
+var lineFunction = d3.svg.line()
+    .x(function(d) { return x(d.t)+2*m; })
+    .y(function(d) { return y(d.prob); })
+    .interpolate("step-before");
+
+//Draw the svg container
+var kaplan = d3.select("body").append("svg")
+    .attr("width", w+(2*m))
+    .attr("height", h+(4*m));
+
+//Draw the lines
+var redLine = kaplan.append("path")
+    .attr("d", lineFunction(data.treatments[0]))
+    .attr("stroke", "red")
+    .attr("stroke-width", 3)
+    .attr("fill", "none")
+    .attr("opacity", 0.7);
+
+var redCircles = kaplan.selectAll("circle.red")
+			   .data(data.treatments[0])
+			   .enter()
+			   .append("circle")
+			   .attr("fill", "red")
+			   .attr("cx", function(d) {
+			   		return x(d.t)+2*m;
+			   })
+			   .attr("cy", function(d) {
+			   		return y(d.prob);
+			   })
+			   .attr("r", function(d){ if(d.censored == false){ return 0; }
+				   	else{ return 5; }
+			   });
+
+var blueLine = kaplan.append("path")
+	.attr("d", lineFunction(data.treatments[1]))
+	.attr("stroke", "blue")
+	.attr("stroke-width", 3)
+	.attr("fill", "none")
+	.attr("opacity", 0.7);
+
+var blueCircles = kaplan.selectAll("circle.blue")
+			   .data(data.treatments[1])
+			   .enter()
+			   .append("circle")
+			   .attr("fill", "blue")
+			   .attr("cx", function(d) {
+			   		return x(d.t)+2*m;
+			   })
+			   .attr("cy", function(d) {
+			   		return y(d.prob);
+			   })
+			   .attr("r", function(d){ if(d.censored == false){ return 0; }
+				   	else{ return 5; }
+			   });
+
+//Draw the x-axis
+var theXAxis = kaplan.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate("+2*m+"," + h + ")")
+    .call(xAxis);
+//Draw the y-axis
+var theYAxis = kaplan.append("g")
+    .attr("class", "y axis")
+    .attr("transform", "translate("+2*m+", "+m+")")
+    .call(yAxis);
+
+</script>
+</body>
+</html>

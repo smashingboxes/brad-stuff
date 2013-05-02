@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>Dognition | Data Visualization</title>
+		
+		<link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+		<link type="text/css" href="css/chosen.css" media="screen" rel="stylesheet"  />
+		<link type="text/css" href="css/style.css" media="screen" rel="stylesheet"  />
+		
+		<script src="http://code.jquery.com/jquery-latest.js" type="text/javascript"></script>
+		<script src="js/tooltip.js" type="text/javascript"></script>
+		<script src="js/raphael-1.5.2-min.js" type="text/javascript"></script>
+		<script type='text/javascript'>//<![CDATA[ 
+var VanillaRunOnDomReady = function() {
+var adjust = 1; //set to 1 if you think feelings are more important than knowledge
+var type = "Einstein";
+var parameters = ['33','15','21','88','79'];
+var adjustedParameters=[];
+    
+var labels=[ 
+			["Empathy","Bonded","Individualistic"], //labels[1][1,2,3] 
+			["Cunning","Trustworthy", "Wily"], //labels[3][1,2,3]
+			["Communication","Collaborative", "Self-Reliant"], //labels[2][1,2,3]
+			["Memory", "Present-Minded", "Retrospective"], 
+			["Reasoning","Logical", "Impulsive"]
+			];
+var labelXY = [
+		    [300, 520], //empathy label x,y
+			[120, 390], //cunning label x,y
+			[200, 130], //communication label x,y
+			[430, 130], //memory label x,y
+			[500, 390] //reasoning label x,y
+		   ];
+
+var alignDirections = ["middle", "end", "end", "start", "start"]; //sets the text-align property for raphaels.text
+
+//append the type to the page
+$('#type-container').prepend(type);
+//adjust the labels and scales to make people feel better if we want to
+if(adjust==1){
+	
+	for (j=0; j<5; j++){
+		if(parameters[j]<50){
+			adjustedParameters[j]=100-parameters[j];
+			labels[j][0]=labels[j][2];
+		}
+		else{adjustedParameters[j]=parameters[j];
+			labels[j][0]=labels[j][1];}
+		
+	}
+
+}
+
+	
+var paper = Raphael("pentagon"),
+    fullNum = [116, 160],
+    borderColors = ['#ff4e17', '#FF6600', '#FF9900','#20b3b7','#3ab448'],
+    fillColors = ['#FF743D', '#FFA13B', '#FFD43B','#46D9DD','#60DA6E'],
+	negativeSpace = [], //give this a value to fill the negative space
+   	triangles = [],
+	border, fill, labels, st, i, j;
+
+
+for (i=0; i<5; i++) {
+
+	label = paper.text(labelXY[i][0], labelXY[i][1], labels[i][0]).attr({
+			'font' : '18px Droid Sans',
+			'fill' : borderColors[i],
+			'text-anchor' : alignDirections[i]
+		}).toFront();
+	
+	fill = paper.path(["M", 316, 323] + "l-120,165 238,0z").attr({
+        'stroke': borderColors[i],
+		'fill': negativeSpace[0],
+        'stroke-width': 10
+    });
+	
+	border = paper.path(getPercentPath(0)).attr({
+        'fill': fillColors[i],
+        'stroke-width': 0        
+    }),
+    
+    triangles.push(border);
+
+    st = paper.set();
+    st.push(border, fill);
+    st.rotate(i * 72, 316, 303);
+	if(adjust==1){
+    setPercent(i, adjustedParameters[i]);
+	}
+	else{setPercent(i, parameters[i]);}
+}
+
+function getPercentPath(percent) {
+    var ratio = percent/100;
+    return ["M", 316, 328] + "l-" + ratio*fullNum[0] + "," + ratio*fullNum[1] + " " + ratio*fullNum[0]*2 + ",0z";
+}
+function setPercent(i, percent) {
+    triangles[i].attr({
+        path: getPercentPath(percent)
+    });
+}
+
+
+
+}
+
+var alreadyrunflag = 0;
+
+if (document.addEventListener)
+    document.addEventListener("DOMContentLoaded", function(){
+        alreadyrunflag=1; 
+        VanillaRunOnDomReady();
+    }, false);
+else if (document.all && !window.opera) {
+    document.write('<script type="text/javascript" id="contentloadtag" defer="defer" src="javascript:void(0)"><\/script>');
+    var contentloadtag = document.getElementById("contentloadtag")
+    contentloadtag.onreadystatechange=function(){
+        if (this.readyState=="complete"){
+            alreadyrunflag=1;
+            VanillaRunOnDomReady();
+        }
+    }
+}
+
+window.onload = function(){
+  setTimeout("if (!alreadyrunflag){VanillaRunOnDomReady}", 0);
+}//]]>  
+
+</script>
+<style>     	
+#pentagon {
+    width: 600px;
+    height: 600px;
+	margin:0 auto;
+   
+}​
+
+		
+</style>
+	</head>
+	<body>
+    <div id="topbar"><div class="inner">
+    <div class="logo-container">
+    <h1><a href="/">Data Visualization</a></h1> 
+    </div>
+    <div id="type-container"></div></div></div>
+
+    <div id="content">
+    	
+		<div id="pentagon"></div>
+    <p id="data-viz-controls" align="center"><a href="pentagon-2.html">Absolute &raquo;</a><a href="pentagon-3a.html">Next &raquo;</a></p>
+    </div>
+	</body>
+</html>

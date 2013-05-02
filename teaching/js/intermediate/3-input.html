@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script>
+$(function(){
+
+	$("#foo").bind( 'keyup', function(){
+	        var current = $(this).val(); // grab what's in the field
+	        $('#bar').text(current); //put that in the paragraph
+	        
+	        console.log(current); //log the current value in the console 
+	    }
+	);
+	
+});	
+</script>
+</head>
+<body>
+	<input type="text" id="foo">
+	<p id="bar"></p>
+</body>
+</html>

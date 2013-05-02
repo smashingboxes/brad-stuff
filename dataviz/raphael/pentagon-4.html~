@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>Dognition | Data Visualization</title>
+		
+		<link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+		<link type="text/css" href="css/chosen.css" media="screen" rel="stylesheet"  />
+		<link type="text/css" href="css/style.css" media="screen" rel="stylesheet"  />
+		
+		<script src="http://code.jquery.com/jquery-latest.js" type="text/javascript"></script>
+		<script src="js/tooltip.js" type="text/javascript"></script>
+		<script src="js/raphael-1.5.2-min.js" type="text/javascript"></script>
+		<script type='text/javascript'>//<![CDATA[ 
+var VanillaRunOnDomReady = function() {
+var adjust = 0; //set to 1 if you think feelings are more important than knowledge
+var type = "Dognition Labs";
+
+
+    
+
+var labels=[ 
+			["Empathy","Bonded","Individualistic"], //labels[1][1,2,3] 
+			["Cunning","Trustworthy", "Wily"], //labels[3][1,2,3]
+			["Communication","Collaborative", "Self-Reliant"], //labels[2][1,2,3]
+			["Memory", "Present-Minded", "Retrospective"], 
+			["Reasoning","Logical", "Impulsive"]
+			];
+var labelXY = [
+		    [310, 520], //empathy label x,y
+			[120, 390], //cunning label x,y
+			[200, 130], //communication label x,y
+			[430, 130], //memory label x,y
+			[500, 390] //reasoning label x,y
+		   ];
+
+var alignDirections = ["middle", "end", "end", "start", "start"]; //sets the text-align property for raphaels.text
+
+//append the type to the page
+$('#type-container').prepend(type);
+
+	
+var paper = Raphael("pentagon"),
+    fullNum = [116, 160],
+    borderColors = ['#999', '#999', '#999','#999','#999'],
+    fillColors = ['#FF743D', '#FFA13B', '#FFD43B','#46D9DD','#60DA6E'],
+	negativeSpace = [], //give this a value to fill the negative space
+   	triangles = [],
+	sparkLine, pointerLine, dimensionTriangle, labels, st, i, j;
+var c = paper.path("M0,0").attr({fill: "none", "stroke-width": 2, "stroke-linecap": "round"}),
+    bg = paper.path("M0,0").attr({stroke: "none", opacity: .3}),
+    dotsy = [],
+    values = [],
+    clr =[];
+
+
+for (i=0; i<5; i++) {
+
+	label = paper.text(labelXY[i][0], labelXY[i][1], labels[i][0]).attr({
+			'font' : '15px Droid Sans',
+			'fill' : borderColors[i],
+			'text-anchor' : alignDirections[i]
+		}).toFront();
+	
+	pointerLine = paper.path(["M", 316, 303] + "l-0, 165z").attr({
+			'stroke' : '#333',
+			'stroke-width' : 5
+	});
+
+	sparkLine = paper.path("M196,468 L226,410 L256, 380 L286, 325 L316, 415 L346, 371 L346, 419 L376, 429 L376, 440 L406, 450 L436, 459 L435,468Z").attr({
+			'fill' : fillColors[i],
+			'stroke' : fillColors[i],
+			'stroke-width' : 5
+	});
+
+	dimensionTriangle = paper.path(["M", 316, 303] + "l-120,165 238,0z").attr({
+		        'stroke': borderColors[i],
+			'fill': negativeSpace[0],
+	        	'stroke-width': 3
+    }),
+    
+    triangles.push(sparkLine);
+
+    st = paper.set();
+    st.push(pointerLine, dimensionTriangle, sparkLine);
+    st.rotate(i * 72, 316, 303);
+}
+
+
+
+
+
+}
+
+var alreadyrunflag = 0;
+
+if (document.addEventListener)
+    document.addEventListener("DOMContentLoaded", function(){
+        alreadyrunflag=1; 
+        VanillaRunOnDomReady();
+    }, false);
+else if (document.all && !window.opera) {
+    document.write('<script type="text/javascript" id="contentloadtag" defer="defer" src="javascript:void(0)"><\/script>');
+    var contentloadtag = document.getElementById("contentloadtag")
+    contentloadtag.onreadystatechange=function(){
+        if (this.readyState=="complete"){
+            alreadyrunflag=1;
+            VanillaRunOnDomReady();
+        }
+    }
+}
+
+window.onload = function(){
+  setTimeout("if (!alreadyrunflag){VanillaRunOnDomReady}", 0);
+}//]]>  
+
+</script>
+<style>     	
+#pentagon {
+    width: 600px;
+    height: 600px;
+	margin:0 auto;
+   
+}​
+
+		
+</style>
+	</head>
+	<body>
+    <div id="topbar"><div class="inner">
+    <div class="logo-container">
+    <h1><a href="/">Data Visualization</a></h1> 
+    </div>
+    <div id="type-container"></div></div></div>
+
+    <div id="content">
+    	
+		<div id="pentagon"></div>
+
+    </div>
+	</body>
+</html>
